@@ -69,7 +69,7 @@ export function ensurePoemCorpus() {
     return Promise.resolve()
   if (!corpusPromise) {
     corpusPromise = corpusLoaders[mode.id]().then(({ default: raw }) => {
-      poemCorpus.value = new Set(raw.split('\n').filter(Boolean))
+      poemCorpus.value = new Set(raw.split(/\r?\n/).filter(Boolean))
     })
   }
   return corpusPromise

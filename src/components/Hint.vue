@@ -27,7 +27,7 @@ const count = computed(() => hintRevealed.value.size)
         </template>
       </div>
       <div v-if="poem" font-serif>
-        {{ t('poet-of-day') }} <b>{{ poem.d }} · {{ poem.a }}</b>
+        {{ t('dynasty') }} <b>{{ poem.d }}</b>
       </div>
       <button
         v-if="count < HINT_CHARS_MAX"

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { filterNonChineseChars } from '@hankit/tools'
-import { answer, dayNo, hintRevealed, isDev, isFailed, isFinished, showCheatSheet, showFailed, showHelp, showHint } from '~/state'
+import { answer, dayNo, hintRevealed, isDev, isFailed, isFinished, parseWord, showCheatSheet, showFailed, showHelp, showHint } from '~/state'
 import { markStart, meta, tries, useNoHint, useStrictMode } from '~/storage'
 import { t } from '~/i18n'
 import { TRIES_LIMIT, WORD_LENGTH, checkValidIdiom } from '~/logic'
@@ -13,6 +13,20 @@ const showToast = autoResetRef(false, 1000)
 const shake = autoResetRef(false, 500)
 
 const isFinishedDelay = debouncedRef(isFinished, 800)
+
+// Keep this in full pinyin even when the board uses zhuyin or shuangpin.
+const firstCharHint = computed(() => {
+  if (!mode.isPoem || useNoHint.value || isFinished.value || tries.value.length < 5)
+    return
+  return parseWord(answer.value.word, answer.value.word, 'py')[0]
+})
+
+watchEffect(() => {
+  if (firstCharHint.value) {
+    meta.value.hint = true
+    meta.value.poemPinyinHint = true
+  }
+})
 
 function enter() {
   if (input.value.length !== WORD_LENGTH)
@@ -71,8 +85,8 @@ watchEffect(() => {
   <div>
     <div flex="~ col" pt2 items-center>
       <div v-if="answer.poem" mb3 px3 py1 rounded-full bg-gray-400:8 text-sm font-serif tracking-wide>
-        <span op50>{{ t('poet-of-day') }}</span>
-        <span ml2>{{ answer.poem.d }} · {{ answer.poem.a }}</span>
+        <span op50>{{ t('dynasty') }}</span>
+        <span ml2>{{ answer.poem.d }}</span>
       </div>
       <button v-if="mode.isPoem && hintRevealed.size && !isFinished" flex gap-1 mb3 :title="t('hint')" @click="hint()">
         <div
@@ -101,6 +115,17 @@ watchEffect(() => {
         :active="true"
         @click="focus()"
       />
+
+      <div v-if="firstCharHint" role="status" my3 px3 py2 rounded bg-gray-400:8 text-sm>
+        <div mb1 font-serif>
+          {{ t('first-char-hint') }}
+        </div>
+        <div flex="~ wrap center gap-x-4 gap-y-1">
+          <span>{{ t('initials') }}：<b>{{ firstCharHint._1 || t('no-initial') }}</b></span>
+          <span>{{ t('finals') }}：<b>{{ firstCharHint._2?.replace(/v/g, 'ü') }}</b></span>
+          <span>{{ t('tone') }}：<b>{{ t(`tone-${firstCharHint.tone}` as any) }}</b></span>
+        </div>
+      </div>
 
       <div mt-1 />
 

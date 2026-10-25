@@ -10,7 +10,7 @@ defineProps<{
 
 const hintText = computed(() => {
   if (!meta.value.hintLevel)
-    return t('hint-level-none')
+    return t(meta.value.poemPinyinHint ? 'first-char-hint' : 'hint-level-none')
   else if (mode.isPoem)
     return t('hint-level-chars', meta.value.hintLevel)
   else if (meta.value.hintLevel === 1)

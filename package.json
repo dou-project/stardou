@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "update": "TEST=true vite-node tools/update.ts",
     "test": "vitest",
+    "test:poem-hints": "node test/poem-hints.mjs",
     "poems": "python3 tools/build-poems.py",
     "covers": "node tools/covers.mjs"
   },

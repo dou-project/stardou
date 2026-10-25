@@ -100,7 +100,7 @@ describe.each([['wuyan', wuyan, 5], ['qiyan', qiyan, 7]] as const)('poem pool %s
   })
 
   it('strict corpus contains every answer', () => {
-    const corpus = new Set(fs.readFileSync(`src/data/poems/${_}-corpus.txt`, 'utf8').split('\n'))
+    const corpus = new Set(fs.readFileSync(`src/data/poems/${_}-corpus.txt`, 'utf8').split(/\r?\n/))
     for (const [line] of answers)
       expect(corpus.has(line), line).toBe(true)
   })
