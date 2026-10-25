@@ -3,7 +3,6 @@ export const SITE = {
   name: '开兜',
   nameHant: '開兜',
   nameEn: 'StarDou',
-  domain: 'stardou.org',
   /** GitHub repo URL, shown on the home page and share dialog when set */
-  repo: '',
+  repo: 'https://github.com/dou-project/stardou',
 }

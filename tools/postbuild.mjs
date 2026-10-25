@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 // Make every mode path a real file so any static host works without rewrite rules
 // (GitHub Pages, `npx serve dist`, S3...), each with its own title and cover image.
+// SITE_URL (e.g. https://dou-project.github.io/stardou/) makes og:image absolute for link previews.
 import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 
 const PAGES = [
@@ -9,7 +10,12 @@ const PAGES = [
   { path: 'qiyan', title: '七言', desc: '课本里的七言诗句', og: 'og-qiyan.png' },
 ]
 
+const base = process.env.SITE_URL || process.env.BASE_PATH || '/'
+const prefix = base.endsWith('/') ? base : `${base}/`
+
 const html = readFileSync('dist/index.html', 'utf8')
+  .replace(/(property="og:image" content=")[^"]*/, `$1${prefix}og.png`)
+  .replace(/(name="twitter:image" content=")[^"]*/, `$1${prefix}og.png`)
 
 function page({ title, desc, og }, endless) {
   const name = `${title}${endless ? '·无限' : ''} · 开兜 StarDou`
@@ -19,9 +25,10 @@ function page({ title, desc, og }, endless) {
     .replace(/(name="description" content=")[^"]*/, `$1${description}`)
     .replace(/(property="og:title" content=")[^"]*/, `$1${name}`)
     .replace(/(property="og:description" content=")[^"]*/, `$1${description}`)
-    .replaceAll('/og.png', `/${og}`)
+    .replaceAll(`${prefix}og.png`, `${prefix}${og}`)
 }
 
+writeFileSync('dist/index.html', html)
 const written = []
 for (const p of PAGES) {
   for (const endless of [false, true]) {

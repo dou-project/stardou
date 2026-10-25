@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { dayNoHanzi, showDashboard, showHelp, showSettings, useMask } from '~/state'
 import { gamesCount } from '~/storage'
-import { endlessKey, isEndless } from '~/modes'
+import { endlessKey, href, isEndless } from '~/modes'
 import { t } from '~/i18n'
 
 const toggleSettings = useToggle(showSettings)
@@ -17,7 +17,7 @@ function openHelp() {
   <nav border="b base" relative>
     <div flex items-center justify-between md:max-w-xl ma py3 px3>
       <div flex items-center w-24>
-        <a href="/" icon-btn mx1 flex="~ gap-1" items-center text-sm :title="t('back-home')">
+        <a :href="href()" icon-btn mx1 flex="~ gap-1" items-center text-sm :title="t('back-home')">
           <div i-carbon-chevron-left text-lg />
           <span font-title tracking-wider>{{ t('site-name') }}</span>
         </a>

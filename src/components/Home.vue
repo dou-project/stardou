@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MODES, modeUrl } from '~/modes'
+import { MODES, href, modeUrl } from '~/modes'
 import type { GameMode } from '~/modes'
 import { locale, t } from '~/i18n'
 import { SITE } from '~/site'
@@ -67,7 +67,7 @@ const cards = MODES.map(m => ({
     </div>
 
     <div max-w-md mx-auto px-5 pt-14 pb-12 flex="~ col" items-center text-center>
-      <img src="/logo.webp" alt="" w-32 h-32 dark:rounded-full>
+      <img :src="href('/logo.webp')" alt="" w-32 h-32 dark:rounded-full>
       <h1 font-title text-5xl font-semibold mt-6 class="tracking-[0.25em] pl-[0.25em]">
         {{ t('site-name') }}
       </h1>
@@ -80,7 +80,7 @@ const cards = MODES.map(m => ({
 
       <div w-full mt-10 flex="~ col gap-4">
         <section v-for="c of cards" :key="c.mode.id" card p5 text-left>
-          <a :href="c.mode.path" block group>
+          <a :href="modeUrl(c.mode)" block group>
             <div flex items-center justify-between gap-3>
               <div font-title text-2xl font-semibold class="tracking-[0.2em]" group-hover:text-primary transition-colors>
                 {{ c.title.value }}
@@ -100,7 +100,7 @@ const cards = MODES.map(m => ({
             </div>
           </a>
           <div flex gap-2 mt4>
-            <a :href="c.mode.path" btn flex-1 flex items-center justify-center gap-2 py2>
+            <a :href="modeUrl(c.mode)" btn flex-1 flex items-center justify-center gap-2 py2>
               {{ t('daily-play') }}
               <span v-if="c.status" text-xs op80>· {{ t(c.status === 'done' ? 'status-done' : 'status-playing') }}</span>
             </a>

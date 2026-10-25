@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextPuzzle, now } from '~/state'
 import { t } from '~/i18n'
-import { isEndless, mode, modeUrl } from '~/modes'
+import { href, isEndless, mode, modeUrl } from '~/modes'
 
 // time left until the next local midnight
 const ms = computed(() => {
@@ -48,7 +48,7 @@ function next() {
       </div>
     </div>
 
-    <a href="/" mt10 inline-flex gap-1 items-center text-sm op50 hover:op80>
+    <a :href="href()" mt10 inline-flex gap-1 items-center text-sm op50 hover:op80>
       <div i-carbon-chevron-left /> {{ t('back-home') }}
     </a>
   </div>

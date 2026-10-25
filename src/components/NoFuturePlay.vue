@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { t } from '~/i18n'
-import { mode } from '~/modes'
+import { mode, modeUrl } from '~/modes'
 </script>
 
 <template>
@@ -8,6 +8,6 @@ import { mode } from '~/modes'
     <p text-center p-4>
       {{ t('no-future-play') }}
     </p>
-    <a btn :href="mode.path">{{ t('back-today') }}</a>
+    <a btn :href="modeUrl(mode)">{{ t('back-today') }}</a>
   </div>
 </template>

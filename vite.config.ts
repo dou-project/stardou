@@ -8,6 +8,8 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Unocss from 'unocss/vite'
 
 export default defineConfig({
+  // GitHub Pages serves the site under /<repo>/, see .github/workflows/deploy.yml
+  base: process.env.BASE_PATH || '/',
   resolve: {
     alias: {
       '~/': `${path.resolve(__dirname, 'src')}/`,

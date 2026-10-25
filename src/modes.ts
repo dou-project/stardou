@@ -110,9 +110,17 @@ export const MODES: GameMode[] = [
   },
 ]
 
-const segments = typeof window === 'undefined'
-  ? []
-  : window.location.pathname.split('/').filter(Boolean).map(s => s.toLowerCase())
+/** where the site is served from: `/` locally, `/<repo>/` on GitHub Pages; always ends with `/` */
+export const BASE: string = import.meta.env?.BASE_URL || '/'
+
+/** href for a site path such as `/wuyan` or `/logo.webp`, under BASE */
+export function href(path = '/') {
+  return BASE + path.replace(/^\//, '')
+}
+
+const pathname = typeof window === 'undefined' ? '/' : window.location.pathname
+const segments = (pathname.startsWith(BASE) ? pathname.slice(BASE.length) : pathname)
+  .split('/').filter(Boolean).map(s => s.toLowerCase())
 
 /** `/` is the home page where players pick a mode */
 export const isHome = !MODES.some(m => m.path === `/${segments[0]}`)
@@ -123,7 +131,7 @@ export const mode = MODES.find(m => m.path === `/${segments[0]}`) || MODES[0]
 export const isEndless = !isHome && segments[1] === 'endless'
 
 export function modeUrl(m: GameMode, endless = false) {
-  return endless ? `${m.path}/endless` : m.path
+  return href(endless ? `${m.path}/endless` : m.path)
 }
 
 const params = typeof window === 'undefined' ? new URLSearchParams() : new URLSearchParams(window.location.search)

@@ -60,7 +60,7 @@ const zoom = Math.min(1.2, 520 / (Math.max(...rows.map(r => Array.from(r.word).l
       </template>
       <div h-1px w-14 bg-gray-400:30 my-8 />
       <div text-xl op55 class="tracking-[0.3em] pl-[0.3em]">
-        {{ m ? `stardou.org${m.path}` : '成语 · 五言 · 七言' }}
+        {{ m ? '每日一题 · 无限模式' : '成语 · 五言 · 七言' }}
       </div>
     </div>
   </main>
