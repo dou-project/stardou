@@ -3,6 +3,7 @@ import type { MatchType, ParsedChar } from './logic'
 import { START_DATE, TRIES_LIMIT, WORD_LENGTH, parseWord as _parseWord, testAnswer as _testAnswer, checkPass, getHint, numberToHanzi } from './logic'
 import { useNumberTone as _useNumberTone, inputMode, meta, spMode, tries } from './storage'
 import { getAnswerOfDay } from './answers'
+import { seedShuffle } from './answers/utils'
 import { endlessKey, isEndless, mode } from './modes'
 import { t } from './i18n'
 
@@ -77,6 +78,13 @@ export const answer = computed(() =>
 )
 
 export const hint = computed(() => answer.value.hint)
+
+/** poem modes: every hint reveals one more character in place (fixed order per answer), never the whole line */
+export const HINT_CHARS_MAX = WORD_LENGTH - 1
+export const hintRevealed = computed(() => {
+  const order = seedShuffle(Array.from({ length: WORD_LENGTH }, (_, i) => i), `hint:${answer.value.word}`)
+  return new Set(order.slice(0, Math.min(meta.value.hintLevel || 0, HINT_CHARS_MAX)))
+})
 export const parsedAnswer = computed(() => parseWord(answer.value.word))
 
 export const isPassed = computed(() => meta.value.passed || (tries.value.length && checkPass(testAnswer(parseWord(tries.value[tries.value.length - 1])))))

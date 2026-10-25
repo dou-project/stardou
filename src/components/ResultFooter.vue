@@ -2,6 +2,7 @@
 import { formatDuration, meta } from '~/storage'
 import { t } from '~/i18n'
 import { dayNoHanzi } from '~/state'
+import { mode } from '~/modes'
 
 defineProps<{
   day?: boolean
@@ -10,6 +11,8 @@ defineProps<{
 const hintText = computed(() => {
   if (!meta.value.hintLevel)
     return t('hint-level-none')
+  else if (mode.isPoem)
+    return t('hint-level-chars', meta.value.hintLevel)
   else if (meta.value.hintLevel === 1)
     return t('hint-level-1')
   else

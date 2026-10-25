@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { filterNonChineseChars } from '@hankit/tools'
-import { answer, dayNo, isDev, isFailed, isFinished, showCheatSheet, showFailed, showHelp, showHint } from '~/state'
+import { answer, dayNo, hintRevealed, isDev, isFailed, isFinished, showCheatSheet, showFailed, showHelp, showHint } from '~/state'
 import { markStart, meta, tries, useNoHint, useStrictMode } from '~/storage'
 import { t } from '~/i18n'
 import { TRIES_LIMIT, WORD_LENGTH, checkValidIdiom } from '~/logic'
-import { endlessKey, isEndless } from '~/modes'
+import { endlessKey, isEndless, mode } from '~/modes'
 
 const el = ref<HTMLInputElement>()
 const input = ref('')
@@ -74,6 +74,15 @@ watchEffect(() => {
         <span op50>{{ t('poet-of-day') }}</span>
         <span ml2>{{ answer.poem.d }} · {{ answer.poem.a }}</span>
       </div>
+      <button v-if="mode.isPoem && hintRevealed.size && !isFinished" flex gap-1 mb3 :title="t('hint')" @click="hint()">
+        <div
+          v-for="c, i of Array.from(answer.word)" :key="i"
+          w-7 h-7 flex items-center justify-center font-serif text-sm
+          :class="hintRevealed.has(i) ? 'bg-gray-400/10 text-mis font-bold' : 'border border-gray-400/25'"
+        >
+          {{ hintRevealed.has(i) ? c : '' }}
+        </div>
+      </button>
       <WordBlocks v-for="w, i of tries" :key="i" :word="w" :revealed="true" @click="focus()" />
 
       <template v-if="meta.answer">

@@ -22,12 +22,12 @@ A Chinese Hanzi Wordle with three entrances: idioms, five-character and seven-ch
 | 入口 | 每日 | 无限 | 字数 | 机会 | 题库 |
 | --- | --- | --- | --- | --- | --- |
 | 成语 | [`/chengyu`](https://stardou.org/chengyu) | [`/chengyu/endless`](https://stardou.org/chengyu/endless) | 4 | 10 次 | 1448 个成语：汉兜原题库 424 个 + [handle#105](https://github.com/antfu/handle/pull/105) 新增 1024 个 |
-| 五言 | [`/wuyan`](https://stardou.org/wuyan) | [`/wuyan/endless`](https://stardou.org/wuyan/endless) | 5 | 15 次 | 369 句，出自 62 首课本诗词 |
-| 七言 | [`/qiyan`](https://stardou.org/qiyan) | [`/qiyan/endless`](https://stardou.org/qiyan/endless) | 7 | 15 次 | 567 句，出自 119 首课本诗词 |
+| 五言 | [`/wuyan`](https://stardou.org/wuyan) | [`/wuyan/endless`](https://stardou.org/wuyan/endless) | 5 | 15 次 | 414 句，出自 68 首课本诗词 |
+| 七言 | [`/qiyan`](https://stardou.org/qiyan) | [`/qiyan/endless`](https://stardou.org/qiyan/endless) | 7 | 15 次 | 665 句，出自 127 首课本诗词 |
 
 - **每日**：每个入口每天一题，所有人同一天拿到同一题，零点更新。成语前 424 天沿用汉兜原题目顺序，之后按固定顺序遍历扩充后的题库。
 - **无限**：先输入一个密钥（或随机生成），之后一题接一题。**同一个密钥的题目顺序永远相同**，把密钥告诉朋友就能一起玩、对答案；链接形如 `/wuyan/endless?key=春风37&i=3`。每个密钥的进度和战绩分开保存，首页和密钥页会列出最近用过的密钥。
-- **诗句**：题目上方直接给出诗人；提示依次给出 字音 → 汉字 + 诗题；猜完后展示全诗、高亮答案句，并标注出自小学 / 初中 / 高中课本。
+- **诗句**：题目上方直接给出诗人；每点一次「提示」就在原位置揭示答案中的一个字（顺序固定，最多揭示到只差一个字），已揭示的字会显示在诗人下方；猜完后展示全诗、高亮答案句，并标注出自小学 / 初中 / 高中课本。
 - 各入口的战绩分开记录，设置（拼音 / 注音 / 双拼、简繁、深色模式、严格模式等）共享。严格模式下诗句须在诗库中（诗库首次使用时按需加载）。
 
 ## 诗句题库
@@ -37,8 +37,8 @@ A Chinese Hanzi Wordle with three entrances: idioms, five-character and seven-ch
 | 文件 | 学段 | 篇目 | 每日出题占比 |
 | --- | --- | --- | --- |
 | [primary.txt](./src/data/poems/textbook/primary.txt) | 小学（1-6 年级课文、日积月累、古诗词诵读） | 110 首 | 60% |
-| [middle.txt](./src/data/poems/textbook/middle.txt) | 初中（7-9 年级课文、课外古诗词诵读） | 52 首 | 30% |
-| [high.txt](./src/data/poems/textbook/high.txt) | 高中（必修、选择性必修中最常背的篇目，长篇只取名段） | 11 首 | 10% |
+| [middle.txt](./src/data/poems/textbook/middle.txt) | 初中（7-9 年级课文、课外古诗词诵读） | 53 首 | 30% |
+| [high.txt](./src/data/poems/textbook/high.txt) | 高中（必修、选择性必修中最常背的篇目，长篇只取名段） | 21 首 | 10% |
 
 - 每日顺序按 小学 : 初中 : 高中 = 6 : 3 : 1 交错排列（任意连续 10 天中都是 6 : 3 : 1，直到某个学段用完），相邻两天不出自同一首诗；无限模式按同样比例、以密钥为种子排列。
 - 正文按课本用字，例如《静夜思》「床前明月光 / 举头望明月」、《游园不值》「小扣柴扉久不开」、《泊船瓜洲》「春风又绿江南岸」。构建脚本会把每一句与 [chinese-poetry](https://github.com/chinese-poetry/chinese-poetry) 比对，列出不一致的句子供人工确认（多为课本异文、异体字，或数据集未收录的元明清及近现代作品）。
