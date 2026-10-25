@@ -44,8 +44,10 @@ const visible = useDocumentVisibility()
 
 let leaveTime = 0
 const REFRESH_TIME = 1000 * 60 * 60 * 3 // 3 hours
-watchEffect(() => {
-  if (visible.value === 'visible') {
+// Only react to the tab being shown or hidden. Reacting to `meta` as well makes two open tabs
+// rewrite each other's timer through localStorage forever, and a guess made meanwhile gets lost.
+watch(visible, (v) => {
+  if (v === 'visible') {
     // left for a long while, refresh the page for updates
     if (leaveTime && Date.now() - leaveTime > REFRESH_TIME)
       location.reload()
@@ -54,11 +56,11 @@ watchEffect(() => {
     if (meta.value.duration)
       markStart()
   }
-  else if (visible.value === 'hidden') {
+  else if (v === 'hidden') {
     leaveTime = Date.now()
     pauseTimer()
   }
-}, { flush: 'post' })
+}, { flush: 'post', immediate: true })
 
 nextTick(() => {
   // if (acceptCollecting.value)
