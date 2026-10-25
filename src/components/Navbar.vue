@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { isDark, showDashboard, showHelp, showSettings, useMask } from '~/state'
+import { dayNoHanzi, showDashboard, showHelp, showSettings, useMask } from '~/state'
 import { gamesCount } from '~/storage'
+import { endlessKey, isEndless } from '~/modes'
+import { t } from '~/i18n'
 
-const toggleDark = useToggle(isDark)
 const toggleSettings = useToggle(showSettings)
 const toggleDashboard = useToggle(showDashboard)
 
@@ -14,27 +15,38 @@ function openHelp() {
 
 <template>
   <nav border="b base" relative>
-    <div absolute font-serif text-2xl left-0 right-0 top-0 bottom-0 z--1 tracking-2 flex>
-      <AppName ma />
-    </div>
-    <div flex items-center justify-between md:max-w-md ma py4 px2>
-      <div flex items-center>
-        <button icon-btn mx2 @click="openHelp()">
+    <div flex items-center justify-between md:max-w-xl ma py3 px3>
+      <div flex items-center w-24>
+        <a href="/" icon-btn mx1 flex="~ gap-1" items-center text-sm :title="t('back-home')">
+          <div i-carbon-chevron-left text-lg />
+          <span font-title tracking-wider>{{ t('site-name') }}</span>
+        </a>
+      </div>
+      <div flex="~ col" items-center min-w-0>
+        <AppName />
+        <div text-xs op45 mt-0.5 ws-nowrap truncate max-w-48 tracking-wide>
+          <template v-if="isEndless && endlessKey">
+            {{ t('endless') }} · {{ endlessKey }} · {{ dayNoHanzi }}
+          </template>
+          <template v-else-if="isEndless">
+            {{ t('endless') }}
+          </template>
+          <template v-else>
+            {{ dayNoHanzi }}
+          </template>
+        </div>
+      </div>
+      <div flex items-center justify-end w-24 gap-1>
+        <button icon-btn mx1.5 :title="t('rule')" @click="openHelp()">
           <div i-carbon-help />
         </button>
-        <button v-if="gamesCount" icon-btn mx2 @click="toggleDashboard()">
-          <div i-carbon-catalog />
+        <button v-if="gamesCount" icon-btn mx1.5 :title="t('dashboard')" @click="toggleDashboard()">
+          <div i-carbon-chart-column />
         </button>
-      </div>
-      <div flex items-center>
-        <button icon-btn mx2 @click="toggleSettings()">
+        <button icon-btn mx1.5 :title="t('settings')" @click="toggleSettings()">
           <div i-carbon-settings />
-        </button>
-        <button icon-btn mx2 @click="toggleDark()">
-          <div i-carbon-sun dark:i-carbon-moon />
         </button>
       </div>
     </div>
   </nav>
-  <ModeTabs />
 </template>

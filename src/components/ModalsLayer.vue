@@ -8,7 +8,6 @@ import {
   showHint,
   showSettings,
   showShareDialog,
-  showVariants,
 } from '~/state'
 
 const lg = breakpoints.lg
@@ -35,8 +34,5 @@ const lg = breakpoints.lg
   </Modal>
   <Modal v-model="showHelp" direction="top">
     <WelcomePage />
-  </Modal>
-  <Modal v-model="showVariants" direction="top">
-    <VariantLinks />
   </Modal>
 </template>

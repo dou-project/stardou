@@ -1,8 +1,7 @@
-import seedrandom from 'seedrandom'
 import { getHint } from '../logic'
-import { getPoem, getPoemAnswers } from '../logic/poems'
-import type { PoemInfo } from '../logic/poems'
-import { isEndless, mode } from '../modes'
+import { getPoem, getPoemAnswers, getPoems } from '../logic/poems'
+import type { PoemAnswer, PoemInfo } from '../logic/poems'
+import { endlessKey, isEndless, mode } from '../modes'
 import { answers } from './list'
 import { seedShuffle } from './utils'
 // idioms from https://github.com/antfu/handle/pull/105, filtered and re-checked by tools/merge-pr105.ts
@@ -56,12 +55,53 @@ export function getAnswerOfDay(day: number): DailyAnswer {
   }
 }
 
-/** puzzle #index of the endless pool */
+const endlessOrders = new Map<string, number[]>()
+
+/** share of 小学 / 初中 / 高中 lines, same as the daily schedule in tools/build-poems.py */
+const GRADE_WEIGHTS: Record<number, number> = { 1: 6, 2: 3, 3: 1 }
+
+/** smooth weighted round-robin over the 学段 pools; no two puzzles in a row from one poem */
+export function interleaveByGrade(indices: number[], list: PoemAnswer[], poems: PoemInfo[]) {
+  const pools = new Map<number, number[]>()
+  for (const i of indices) {
+    const g = poems[list[i][2]]?.g || 1
+    pools.set(g, [...(pools.get(g) || []), i])
+  }
+  const credit = new Map<number, number>()
+  const order: number[] = []
+  while (order.length < indices.length) {
+    const live = [...pools.keys()].filter(g => pools.get(g)!.length).sort()
+    const total = live.reduce((s, g) => s + (GRADE_WEIGHTS[g] || 1), 0)
+    for (const g of live)
+      credit.set(g, (credit.get(g) || 0) + (GRADE_WEIGHTS[g] || 1))
+    const g = live.reduce((a, b) => credit.get(b)! > credit.get(a)! ? b : a)
+    credit.set(g, credit.get(g)! - total)
+    const pool = pools.get(g)!
+    const last = order.length ? list[order[order.length - 1]][2] : -1
+    const k = Math.max(0, pool.findIndex(i => list[i][2] !== last))
+    order.push(pool.splice(k, 1)[0])
+  }
+  return order
+}
+
+/** the order of the whole pool for an endless key; everyone with the same key gets the same order */
+export function getEndlessOrder(key = endlessKey) {
+  if (!endlessOrders.has(key)) {
+    const shuffled = seedShuffle(Array.from({ length: getPoolSize() }, (_, i) => i), `stardou:${mode.id}:${key}`)
+    endlessOrders.set(key, mode.isPoem ? interleaveByGrade(shuffled, getPoemAnswers(), getPoems()) : shuffled)
+  }
+  return endlessOrders.get(key)!
+}
+
+/** puzzle #index (0-based) of the endless sequence for the current key */
 export function getAnswerOfIndex(index: number): DailyAnswer {
+  const order = getEndlessOrder()
+  if (!order.length)
+    return { word: '', hint: '' }
+  const poolIndex = order[((index % order.length) + order.length) % order.length]
   if (mode.isPoem)
-    return getPoemAnswerOfDay(index + 1)
-  const pool = getIdiomPool()
-  const [word = '', hint = ''] = pool[((index % pool.length) + pool.length) % pool.length] || []
+    return getPoemAnswerOfDay(poolIndex + 1)
+  const [word = '', hint = ''] = getIdiomPool()[poolIndex] || []
   return { word, hint: hint || getHint(word) }
 }
 
@@ -76,17 +116,4 @@ function getPoemAnswerOfDay(day: number): DailyAnswer {
     hint: getHint(word),
     poem: getPoem(poemIndex),
   }
-}
-
-/** pick a random puzzle the player has not finished yet */
-export function pickNextIndex(finished: Set<number>, current?: number) {
-  const size = getPoolSize()
-  const rng = seedrandom()
-  for (let i = 0; i < 50; i++) {
-    const n = Math.floor(rng() * size)
-    if (!finished.has(n) && n !== current)
-      return n
-  }
-  const left = Array.from({ length: size }, (_, i) => i).filter(i => !finished.has(i) && i !== current)
-  return left.length ? left[Math.floor(rng() * left.length)] : Math.floor(rng() * size)
 }

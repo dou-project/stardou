@@ -3,7 +3,7 @@ import DashboardItem from './DashboardItem.vue'
 import { t } from '~/i18n'
 import { showDashboard } from '~/state'
 import { averageDurations, gamesCount, history, historyTriesCount, noHintPassedCount, passedCount, passedTries } from '~/storage'
-import { checkValidIdiom } from '~/logic'
+import { TRIES_LIMIT, checkValidIdiom } from '~/logic'
 import { ensurePoemCorpus, poemCorpus } from '~/logic/poems'
 
 onMounted(() => ensurePoemCorpus())
@@ -12,8 +12,8 @@ const triesMap = computed(() => {
   const map = new Map<number, number>()
   passedTries.value.forEach((i) => {
     let count = i.tries!.length
-    if (count > 10)
-      count = 10
+    if (count > TRIES_LIMIT)
+      count = TRIES_LIMIT
     map.set(count, (map.get(count) || 0) + 1)
   })
   return map
@@ -66,8 +66,8 @@ const validWords = computed(() => {
         {{ t('guess-dist') }}
       </p>
       <div v-for="i of triesMax" :key="i" flex="~" items-center gap-2>
-        <div w-4 flex-none text-right op50>
-          {{ i === 10 ? '10+' : i }}
+        <div w-6 flex-none text-right op50>
+          {{ i === TRIES_LIMIT ? `${TRIES_LIMIT}+` : i }}
         </div>
         <div bg-primary h-5 text-white text-right flex justify-end :style="{ width: triesMap.get(i) ? `${triesMap.get(i)! / tiresMaxCount * 100}%` : '1%' }">
           <div text-sm mya mr1>

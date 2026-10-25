@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 permissions:
   contents: read
@@ -16,6 +16,8 @@ concurrency:
 
 jobs:
   build:
+    # GitHub Pages needs a public repo on the Free plan; the private repo only runs ci.yml
+    if: ${{ !github.event.repository.private }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

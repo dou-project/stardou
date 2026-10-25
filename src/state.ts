@@ -1,9 +1,10 @@
 import { breakpointsTailwind } from '@vueuse/core'
 import type { MatchType, ParsedChar } from './logic'
 import { START_DATE, TRIES_LIMIT, WORD_LENGTH, parseWord as _parseWord, testAnswer as _testAnswer, checkPass, getHint, numberToHanzi } from './logic'
-import { useNumberTone as _useNumberTone, history, inputMode, meta, spMode, tries } from './storage'
-import { getAnswerOfDay, getPoolSize, pickNextIndex } from './answers'
-import { isEndless, storagePrefix } from './modes'
+import { useNumberTone as _useNumberTone, inputMode, meta, spMode, tries } from './storage'
+import { getAnswerOfDay } from './answers'
+import { endlessKey, isEndless, mode } from './modes'
+import { t } from './i18n'
 
 export const isIOS = /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 export const isMobile = isIOS || /iPad|iPhone|iPod|Android|Phone|webOS/i.test(navigator.userAgent)
@@ -24,7 +25,6 @@ export const showHelp = ref(false)
 export const showShare = ref(false)
 export const showFailed = ref(false)
 export const showDashboard = ref(false)
-export const showVariants = ref(false)
 export const showCheatSheet = ref(false)
 export const showShareDialog = ref(false)
 export const useMask = ref(false)
@@ -44,20 +44,29 @@ function localDayIndex(d: Date) {
 }
 // count local calendar days, so DST shifts never move the boundary
 export const daySince = useDebounce(computed(() => localDayIndex(now.value) - localDayIndex(START_DATE)))
+const PROGRESS_KEY = `${mode.storagePrefix}-endless-progress`
+
+/** endless mode: how far each key has got, `{ [key]: puzzle index }` */
+export function readEndlessProgress(): Record<string, number> {
+  try {
+    return JSON.parse(localStorage.getItem(PROGRESS_KEY) || '{}') || {}
+  }
+  catch {
+    return {}
+  }
+}
+
 function initialDayNo() {
   if (!isEndless)
     return +(params.get('d') || daySince.value)
   const fromUrl = params.get('i')
-  if (fromUrl != null && /^\d+$/.test(fromUrl))
-    return (+fromUrl - 1 + getPoolSize()) % getPoolSize()
-  const saved = Number(localStorage.getItem(`${storagePrefix}-current`))
-  if (Number.isInteger(saved) && saved >= 0 && saved < getPoolSize())
-    return saved
-  return pickNextIndex(new Set())
+  if (fromUrl != null && /^\d+$/.test(fromUrl) && +fromUrl > 0)
+    return +fromUrl - 1
+  return readEndlessProgress()[endlessKey] || 0
 }
-/** day number, or the puzzle index (0-based) in endless mode */
+/** day number, or the puzzle index (0-based) along the key's sequence in endless mode */
 export const dayNo = ref(initialDayNo())
-export const dayNoHanzi = computed(() => isEndless ? `无限 #${dayNo.value + 1}` : `${numberToHanzi(dayNo.value)}日`)
+export const dayNoHanzi = computed(() => isEndless ? t('endless-resume', dayNo.value + 1) : `第${numberToHanzi(dayNo.value)}日`)
 export const answer = computed(() =>
   params.get('word')
     ? {
@@ -120,21 +129,24 @@ export function getSymbolState(symbol?: string | number, key?: '_1' | '_2' | 'to
   return null
 }
 
-/** endless mode: jump to another random unfinished puzzle without reloading */
+/** endless mode: the next puzzle of the same key, without reloading */
 export function nextPuzzle() {
-  const finished = new Set(Object.entries(history.value)
-    .filter(([, m]) => m.passed || m.answer || m.failed)
-    .map(([k]) => +k))
-  dayNo.value = pickNextIndex(finished, dayNo.value)
+  dayNo.value += 1
 }
 
-if (isEndless) {
+if (isEndless && endlessKey) {
   watch(dayNo, (n) => {
     try {
-      localStorage.setItem(`${storagePrefix}-current`, String(n))
+      const progress = readEndlessProgress()
+      // keep the most recent keys only
+      delete progress[endlessKey]
+      const entries = [...Object.entries(progress), [endlessKey, n] as const].slice(-8)
+      localStorage.setItem(PROGRESS_KEY, JSON.stringify(Object.fromEntries(entries)))
+      localStorage.setItem(`${mode.storagePrefix}-endless-last`, endlessKey)
     }
     catch {}
     const url = new URL(location.href)
+    url.searchParams.set('key', endlessKey)
     url.searchParams.set('i', String(n + 1))
     replaceUrl(url)
   }, { immediate: true })

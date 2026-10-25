@@ -4,7 +4,7 @@ import { answer, dayNo, isDev, isFailed, isFinished, showCheatSheet, showFailed,
 import { markStart, meta, tries, useNoHint, useStrictMode } from '~/storage'
 import { t } from '~/i18n'
 import { TRIES_LIMIT, WORD_LENGTH, checkValidIdiom } from '~/logic'
-import { isEndless } from '~/modes'
+import { endlessKey, isEndless } from '~/modes'
 
 const el = ref<HTMLInputElement>()
 const input = ref('')
@@ -69,7 +69,11 @@ watchEffect(() => {
 
 <template>
   <div>
-    <div flex="~ col" pt4 items-center>
+    <div flex="~ col" pt2 items-center>
+      <div v-if="answer.poem" mb3 px3 py1 rounded-full bg-gray-400:8 text-sm font-serif tracking-wide>
+        <span op50>{{ t('poet-of-day') }}</span>
+        <span ml2>{{ answer.poem.d }} · {{ answer.poem.a }}</span>
+      </div>
       <WordBlocks v-for="w, i of tries" :key="i" :word="w" :revealed="true" @click="focus()" />
 
       <template v-if="meta.answer">
@@ -93,11 +97,11 @@ watchEffect(() => {
 
       <Transition name="fade-out">
         <div v-if="!isFinished" flex="~ col gap-2" items-center>
-          <div relative border="2 base rounded-0">
+          <div relative border="2 base rounded-0" max-w-full>
             <input
               ref="el"
               v-model="inputValue"
-              bg-transparent w-86 p3 outline-none text-center
+              bg-transparent w-86 max-w-full p3 outline-none text-center
               type="text"
               autocomplete="false"
               :placeholder="t('input-placeholder')"
@@ -159,7 +163,7 @@ watchEffect(() => {
         <div flex gap2>
           <a
             class="btn"
-            :href="isEndless ? `?dev=hey&i=${dayNo}` : `?dev=hey&d=${dayNo - 1}`"
+            :href="isEndless ? `?dev=hey&key=${encodeURIComponent(endlessKey)}&i=${dayNo}` : `?dev=hey&d=${dayNo - 1}`"
           >
             上一天
           </a>
@@ -171,7 +175,7 @@ watchEffect(() => {
           </button>
           <a
             class="btn"
-            :href="isEndless ? `?dev=hey&i=${dayNo + 2}` : `?dev=hey&d=${dayNo + 1}`"
+            :href="isEndless ? `?dev=hey&key=${encodeURIComponent(endlessKey)}&i=${dayNo + 2}` : `?dev=hey&d=${dayNo + 1}`"
           >
             下一天
           </a>

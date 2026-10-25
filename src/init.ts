@@ -1,14 +1,13 @@
 import { initialized, markEnd, markStart, meta, pauseTimer, useStrictMode } from './storage'
 import { answer, dayNo, daySince, isDev, isFinished, isPassed, showCheatSheet, showHelp } from './state'
-import { t } from './i18n'
-import { answers } from './answers/list'
+import { locale, t } from './i18n'
 import { START_DATE } from './logic/constants'
 import { tryFixAnswer } from './logic/answer-fix'
 import { ensurePoemCorpus } from './logic/poems'
-import { isEndless, mode } from './modes'
+import { endlessKey, isEndless, mode } from './modes'
 import { SITE } from './site'
 
-useTitle(computed(() => `${t('name')} - ${t('description')} · ${SITE.name}`))
+useTitle(computed(() => `${locale.value === 'hant' ? mode.titleHant : mode.title} · ${t('site-name')} ${SITE.nameEn}`))
 
 if (!initialized.value)
   showHelp.value = true
@@ -71,10 +70,5 @@ nextTick(() => {
 if (isDev || import.meta.hot) {
   const theDate = new Date(+START_DATE + dayNo.value * 86400000)
   // eslint-disable-next-line no-console
-  console.log(`D${dayNo.value}`, theDate.toLocaleDateString(), answer.value.word, answer.value.hint)
-}
-
-if (import.meta.hot && !mode.isPoem) {
-  // eslint-disable-next-line no-console
-  console.log(`${answers.length} days prepared, later days are drawn randomly from the list`)
+  console.log(isEndless ? `#${dayNo.value + 1}` : `D${dayNo.value}`, isEndless ? endlessKey : theDate.toLocaleDateString(), answer.value.word, answer.value.hint)
 }

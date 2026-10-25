@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { t } from '~/i18n'
 import { answer, dayNo, dayNoHanzi, isMobile, parseWord, testAnswer } from '~/state'
-import { isEndless } from '~/modes'
+import { endlessKey, isEndless } from '~/modes'
 import { meta, tries } from '~/storage'
 
 const lines = computed(() => {
@@ -29,6 +29,7 @@ const lines = computed(() => {
   return [
     [
       t('name'),
+      isEndless ? `${t('endless')} ${endlessKey}` : '',
       dayNoHanzi.value,
       meta.value.strict ? t('strict-mode').slice(0, 2) : '',
       !meta.value.hint ? t('hint-level-none') : '',
@@ -36,7 +37,7 @@ const lines = computed(() => {
     '',
     ...table,
     '',
-    location.host + location.pathname.replace(/\/$/, '') + (isEndless ? `?i=${dayNo.value + 1}` : ''),
+    location.host + location.pathname.replace(/\/$/, '') + (isEndless ? `?key=${encodeURIComponent(endlessKey)}&i=${dayNo.value + 1}` : ''),
   ]
 })
 

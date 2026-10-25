@@ -57,8 +57,11 @@ async function download() {
 
   <div v-if="show" fixed op0 top-0 left-0 pointer-events-none>
     <div ref="el" flex="~ col" items-center p="x6 y4" bg-base relative text-center>
-      <AppName w-full />
-      <div w-full text-xs mt1 mb3 op50 ws-nowrap>
+      <div flex="~ gap-3" items-center justify-center w-full>
+        <span font-title font-semibold text-base op45 tracking-wider>{{ t('site-name') }}</span>
+        <AppName />
+      </div>
+      <div w-full text-xs mt2 mb3 op50 ws-nowrap>
         {{ host }}
       </div>
 

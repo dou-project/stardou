@@ -1,23 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-  <title>兜兜 Stardou - 汉兜 · 诗兜</title>
-  <meta name="description" content="兜兜 Stardou - 汉兜 · 诗兜：成语与诗句 Wordle">
-  <meta property="og:image" content="/og.png"/>
-  <meta property="og:title" content="兜兜 Stardou"/>
-  <meta property="og:description" content="兜兜 Stardou - 汉兜 · 诗兜：成语与诗句 Wordle"/>
-  <meta name="twitter:image" content="/og.png"/>
-  <meta name="twitter:card" content="summary_large_image"/>
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="preload" href="/fonts/title-700.woff2" as="font" type="font/woff2" crossorigin>
+  <meta name="theme-color" content="#fbf9f4">
+  <title>开兜 StarDou - 汉字 Wordle</title>
+  <meta name="description" content="开兜 StarDou：猜成语、猜五言与七言诗句的汉字 Wordle">
+  <meta property="og:title" content="开兜 StarDou">
+  <meta property="og:description" content="开兜 StarDou：猜成语、猜五言与七言诗句的汉字 Wordle">
+  <meta property="og:image" content="/og.png">
+  <meta name="twitter:image" content="/og.png">
+  <meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
   <div id="app"></div>
   <script>
     (function() {
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-      const setting = localStorage.getItem('color-schema') || 'auto'
+      const setting = localStorage.getItem('vueuse-color-scheme') || 'auto'
       if (setting === 'dark' || (prefersDark && setting !== 'light'))
         document.documentElement.classList.toggle('dark', true)
     })()

@@ -2,12 +2,13 @@ import type { SpMode } from '@hankit/tools'
 import { preferZhuyin, t } from './i18n'
 import { dayNo } from './state'
 import type { InputMode, TriesMeta } from './logic'
-import { storagePrefix } from './modes'
+import { mode, storagePrefix } from './modes'
 
 export const legacyTries = useStorage<Record<number, string[]>>(`${storagePrefix}-tries`, {})
 
 export const history = useStorage<Record<number, TriesMeta>>(`${storagePrefix}-tries-meta`, {})
-export const initialized = useStorage('handle-initialized', false)
+/** the rules page opens on the first visit to each mode */
+export const initialized = useStorage(`${mode.storagePrefix}-initialized`, false)
 
 export const inputMode = useStorage<InputMode>('handle-mode', preferZhuyin ? 'zy' : 'py')
 export const spMode = useStorage<SpMode>('handle-sp-mode', 'sougou')

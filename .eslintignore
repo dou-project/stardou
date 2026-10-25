@@ -1,3 +1,6 @@
 dist
 node_modules
 public
+# generated data
+src/answers/extra.json
+src/data/poems/*.json

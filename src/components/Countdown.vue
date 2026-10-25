@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { nextPuzzle, now } from '~/state'
 import { t } from '~/i18n'
-import { isEndless } from '~/modes'
+import { isEndless, mode, modeUrl } from '~/modes'
 
 // time left until the next local midnight
 const ms = computed(() => {
@@ -31,10 +31,13 @@ function next() {
 
     <div h-1px w-10 border="t base" mt4 mb6 mxa />
 
-    <div v-if="isEndless" flex="~ col center">
+    <div v-if="isEndless" flex="~ col center gap-3">
       <button btn p="x6 y2" @click="next()">
         <span tracking-1 pl1>{{ t('next-puzzle') }}</span>
       </button>
+      <a :href="`${modeUrl(mode, true)}?key=`" text-sm op50 hover:op80>
+        {{ t('endless-change-key') }}
+      </a>
     </div>
     <div v-else flex="~ col center" relative>
       <div op50 ws-nowrap>
@@ -44,5 +47,9 @@ function next() {
         {{ formatted }}
       </div>
     </div>
+
+    <a href="/" mt10 inline-flex gap-1 items-center text-sm op50 hover:op80>
+      <div i-carbon-chevron-left /> {{ t('back-home') }}
+    </a>
   </div>
 </template>

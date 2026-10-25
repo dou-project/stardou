@@ -12,12 +12,16 @@ Processed from https://github.com/mollykannn/translate-big5-gbk.git
 
 From users' input
 
+## `poems/textbook/*.txt`
+
+The answer pool of 五言 / 七言: poems students recite in the 统编版 (人教社) textbooks, typed in textbook wording — `primary.txt` (小学), `middle.txt` (初中), `high.txt` (高中, famous passages only).
+
 ## `poems/*.json` / `poems/*-corpus.txt`
 
-Built by `tools/build-poems.py` from https://github.com/chinese-poetry/chinese-poetry (MIT, Copyright (c) 2016 JackeyGao):
+Built by `tools/build-poems.py` from `poems/textbook/*.txt`, cross-checked against https://github.com/chinese-poetry/chinese-poetry (MIT, Copyright (c) 2016 JackeyGao):
 
-- answers: 《唐诗三百首》 and 《千家诗》 (蒙学), 绝句 / 律诗 / short 古诗 only
-- strict-mode corpus: every 5- or 7-character line of 《全唐诗》 plus the answers
+- answers: every 5- or 7-character line of the textbook poems, in a fixed order weighted 小学 6 : 初中 3 : 高中 1
+- strict-mode corpus: every 5- or 7-character line of 《全唐诗》, 《唐诗三百首》 and 《千家诗》, plus the answers
 
 `poems/pinyin-fixes.json` holds hand-checked readings that override pypinyin per line.
 

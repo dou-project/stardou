@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { colorblind, inputMode, meta, spMode, useCheckAssist, useNoHint, useNumberTone as useNumberToneRaw, useStrictMode } from '~/storage'
-import { useNumberTone } from '~/state'
+import { isDark, useNumberTone } from '~/state'
 import { locale, t } from '~/i18n'
 
 defineProps<{
@@ -27,6 +27,16 @@ defineProps<{
       >
         {{ t('colorblind-mode') }}
         <div v-if="colorblind" square-btn-mark />
+      </button>
+      <button
+        v-if="!lite"
+        square-btn m2
+        :class="isDark ? 'text-primary' : 'op80' "
+        @click="isDark = !isDark"
+      >
+        <div i-carbon-moon />
+        {{ t('dark-mode') }}
+        <div v-if="isDark" square-btn-mark />
       </button>
     </div>
     <div flex="~ center wrap">

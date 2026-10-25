@@ -99,6 +99,9 @@ importers:
       ohmyfetch:
         specifier: ^0.4.21
         version: 0.4.21
+      playwright-core:
+        specifier: 1.48.2
+        version: 1.48.2
       pnpm:
         specifier: ^7.18.2
         version: 7.18.2
@@ -4112,6 +4115,12 @@ packages:
       jsonc-parser: 3.2.0
       mlly: 1.0.0
       pathe: 1.0.0
+    dev: true
+
+  /playwright-core@1.48.2:
+    resolution: {integrity: sha512-sjjw+qrLFlriJo64du+EK0kJgZzoQPsabGF4lBvsid+3CNIZIYLgnMj9V6JY5VhM2Peh20DJWIVpVljLLnlawA==}
+    engines: {node: '>=18'}
+    hasBin: true
     dev: true
 
   /pluralize@8.0.0:

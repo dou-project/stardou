@@ -1,9 +1,9 @@
 {
   "name": "stardou",
-  "license": "MIT",
   "type": "module",
   "private": true,
   "packageManager": "pnpm@8.15.9",
+  "license": "MIT",
   "scripts": {
     "dev": "vite --port 4444",
     "build": "vite build && node tools/postbuild.mjs",
@@ -11,7 +11,8 @@
     "lint": "eslint .",
     "update": "TEST=true vite-node tools/update.ts",
     "test": "vitest",
-    "poems": "python3 tools/build-poems.py"
+    "poems": "python3 tools/build-poems.py",
+    "covers": "node tools/covers.mjs"
   },
   "dependencies": {
     "@iconify-json/ri": "^1.1.4",
@@ -46,6 +47,7 @@
     "file-saver": "^2.0.5",
     "jsdom": "^20.0.3",
     "ohmyfetch": "^0.4.21",
+    "playwright-core": "1.48.2",
     "pnpm": "^7.18.2",
     "typescript": "^4.9.4",
     "unbuild": "^1.0.2",

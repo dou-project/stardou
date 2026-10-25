@@ -3,7 +3,7 @@ import '~/init'
 import { answer, dayNo, daySince, isDev } from '~/state'
 import { colorblind } from '~/storage'
 import { DAYS_PLAY_BACK } from '~/logic/constants'
-import { isEndless } from '~/modes'
+import { endlessKey, isEndless } from '~/modes'
 
 const { height } = useWindowSize()
 
@@ -17,7 +17,8 @@ watchEffect(() => {
     <NotTodayBanner v-if="!isEndless && dayNo < daySince" />
     <Navbar />
     <div p="4">
-      <NoQuizToday v-if="!answer.word" />
+      <EndlessKey v-if="isEndless && !endlessKey" />
+      <NoQuizToday v-else-if="!answer.word" />
       <Play v-else-if="isEndless" :key="dayNo" />
       <NoFuturePlay v-else-if="dayNo > daySince && !isDev" />
       <NoPastPlay v-else-if="daySince - dayNo > DAYS_PLAY_BACK && !isDev" />

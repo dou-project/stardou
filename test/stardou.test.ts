@@ -1,5 +1,5 @@
 /**
- * Stress tests for the 兜兜 additions: every answer in every pool must
+ * Stress tests for the 开兜 additions: every answer in every pool must
  * parse, have a well-formed reading, and the schedule must be stable.
  */
 import fs from 'fs'
@@ -7,7 +7,9 @@ import { describe, expect, it } from 'vitest'
 import { toZhuyin } from '@hankit/tools'
 import extra from '../src/answers/extra.json'
 import { answers } from '../src/answers/list'
-import { getAnswerOfDay, getIdiomPool } from '../src/answers'
+import { getAnswerOfDay, getEndlessOrder, getIdiomPool, interleaveByGrade } from '../src/answers'
+import { seedShuffle } from '../src/answers/utils'
+import { MODES } from '../src/modes'
 import { getPinyin } from '../src/logic/idioms'
 import { parseWord, testAnswer } from '../src/logic/utils'
 import wuyan from '../src/data/poems/wuyan.json'
@@ -101,5 +103,65 @@ describe.each([['wuyan', wuyan, 5], ['qiyan', qiyan, 7]] as const)('poem pool %s
     const corpus = new Set(fs.readFileSync(`src/data/poems/${_}-corpus.txt`, 'utf8').split('\n'))
     for (const [line] of answers)
       expect(corpus.has(line), line).toBe(true)
+  })
+
+  it('only uses poems from the textbook lists', () => {
+    const titles = new Set(['primary', 'middle', 'high'].flatMap(f =>
+      fs.readFileSync(`src/data/poems/textbook/${f}.txt`, 'utf8').split('\n')
+        .filter(l => / \| .+ \| /.test(l) && !l.startsWith('#'))
+        .map(l => l.split(' | ')[0].trim()),
+    ))
+    for (const p of data.poems) {
+      expect(titles.has(p.t), p.t).toBe(true)
+      expect([1, 2, 3]).toContain(p.g)
+    }
+  })
+
+  it('daily order is 小学 6 : 初中 3 : 高中 1', () => {
+    const grades = answers.slice(0, 100).map(a => data.poems[a[2]].g)
+    expect(grades.filter(g => g === 1)).toHaveLength(60)
+    expect(grades.filter(g => g === 2)).toHaveLength(30)
+    expect(grades.filter(g => g === 3)).toHaveLength(10)
+  })
+
+  it('endless order is a weighted permutation that depends only on the key', () => {
+    const order = (key: string) => interleaveByGrade(seedShuffle(answers.map((_, i) => i), `stardou:${_}:${key}`), answers, data.poems as any)
+    const a = order('春风37')
+    expect(order('春风37')).toEqual(a)
+    expect(order('明月')).not.toEqual(a)
+    expect([...a].sort((x, y) => x - y)).toEqual(answers.map((_, i) => i))
+    const grades = a.slice(0, 50).map(i => data.poems[answers[i][2]].g)
+    expect(grades.filter(g => g === 1)).toHaveLength(30)
+    for (let i = 1; i < a.length; i++)
+      expect(answers[a[i]][2] === answers[a[i - 1]][2], answers[a[i]][0]).toBe(false)
+  })
+})
+
+describe('endless keys', () => {
+  it('same key, same idiom order', () => {
+    expect(getEndlessOrder('春风37')).toEqual(getEndlessOrder('春风37'))
+    expect(getEndlessOrder('春风37')).not.toEqual(getEndlessOrder('春风38'))
+    expect(new Set(getEndlessOrder('x')).size).toBe(getIdiomPool().length)
+  })
+})
+
+describe.each(MODES.map(m => [m.id, m] as const))('rules examples %s', (_, m) => {
+  const scored = (e: { word: string; answer: string }) => testAnswer(parseWord(e.word, e.answer), parseWord(e.answer, e.answer))
+  const { exact, misplaced, parts, win } = m.rules
+
+  it('have the mode length', () => {
+    for (const w of [exact.word, misplaced.word, parts.word, win])
+      expect(Array.from(w), w).toHaveLength(m.length)
+  })
+
+  it('color what the sentences say', () => {
+    expect(scored(exact)[exact.at].char).toBe('exact')
+    expect(scored(misplaced)[misplaced.at].char).toBe('misplaced')
+    const p = scored(parts)
+    expect(p[parts.at].char).toBe('none')
+    expect(p[parts.at]._1).toBe('exact')
+    expect(p[parts.at]._2).toBe('exact')
+    expect(p[parts.final]._2).toBe('misplaced')
+    expect(scored({ word: win, answer: win }).every(r => r.char === 'exact')).toBe(true)
   })
 })

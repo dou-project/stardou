@@ -1,3 +1,17 @@
+/* subset of Noto Serif SC (OFL) with only the title glyphs: 开兜 成语 五言 七言 … */
+@font-face {
+  font-family: 'StarDou Title';
+  src: url('/fonts/title-500.woff2') format('woff2');
+  font-weight: 400 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'StarDou Title';
+  src: url('/fonts/title-700.woff2') format('woff2');
+  font-weight: 600 800;
+  font-display: swap;
+}
+
 html,
 body,
 #app {
@@ -6,15 +20,21 @@ body,
   padding: 0;
 }
 
+html {
+  background: var(--c-paper);
+}
+
 html.dark {
-  background: #121212;
+  background: #131313;
 }
 
 :root {
+  --c-paper: #fbf9f4;
   --c-primary: #0d828e;
   --c-primary-deep: #08606a;
   --c-ok: #1d9c9c;
   --c-mis: #de7525;
+  --c-star: #f3cf5f;
 }
 .dark {
   --c-ok: #0d8e8e;

@@ -10,6 +10,8 @@ export interface PoemInfo {
   d: string
   /** paragraphs, e.g. ['白日依山尽，黄河入海流。', ...] */
   p: string[]
+  /** 学段 of the textbook: 1 小学, 2 初中, 3 高中 */
+  g: number
 }
 
 /** [line, pinyin (TONE2, space separated), poem index] */
@@ -52,6 +54,10 @@ export function getPoemAnswers() {
 
 export function getPoem(index: number): PoemInfo | undefined {
   return data.poems[index]
+}
+
+export function getPoems() {
+  return data.poems
 }
 
 /** Full-text corpus for strict mode. Large, so it is only fetched when strict mode is used. */

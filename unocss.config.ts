@@ -9,7 +9,9 @@ export default defineConfig({
       'square-btn': 'flex flex-gap-2 items-center border border-base px2 py1 relative !outline-none',
       'square-btn-mark': 'absolute h-2 w-2 bg-primary -right-0.2rem -top-0.2rem',
 
-      'bg-base': 'bg-white dark:bg-[#121212]',
+      'bg-base': 'bg-[#fbf9f4] dark:bg-[#131313]',
+      'card': 'bg-white/70 dark:bg-white/3 border border-gray-400/15 rounded-xl',
+      'ghost-btn': 'px-4 py-1 rounded inline-block border border-gray-400/30 cursor-pointer tracking-wide op80 hover:op100 hover:border-primary hover:text-primary transition-colors',
       'bg-overlay': 'bg-[#eee]:50 dark:bg-[#222]:50',
       'bg-header': 'bg-gray-500:5',
       'bg-active': 'bg-gray-500:8',
@@ -28,7 +30,13 @@ export default defineConfig({
     ['h-screen', { height: 'calc(var(--vh, 1vh) * 100)' }],
   ],
   theme: <Theme>{
+    fontFamily: {
+      serif: '"Noto Serif SC","Source Han Serif SC","Songti SC","STSong",ui-serif,Georgia,serif',
+      // subset of Noto Serif SC with only the title glyphs, see src/styles/main.css
+      title: '"StarDou Title","Noto Serif SC","Source Han Serif SC","Songti SC","STSong",serif',
+    },
     colors: {
+      'star': 'var(--c-star)',
       'ok': 'var(--c-ok)',
       'primary': 'var(--c-primary)',
       'primary-deep': 'var(--c-primary-deep)',
