@@ -1,0 +1,34 @@
+{
+  "cSpell.words": [
+    "sougou",
+    "Vitesse",
+    "xiaohe",
+    "Zhuyin"
+  ],
+  "prettier.enable": false,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "files.associations": {
+    "*.css": "postcss"
+  },
+  "i18n-ally.enabledFrameworks": [
+    "vue"
+  ],
+  "i18n-ally.localesPaths": [
+    "src/locales"
+  ],
+  "i18n-ally.extract.autoDetect": true,
+  "i18n-ally.keystyle": "flat",
+  "i18n-ally.sortKeys": true,
+  "i18n-ally.refactor.templates": [
+    {
+      "templates": [
+        "{{ t('{key}') }}",
+        "t('{key}')"
+      ]
+    }
+  ],
+  "i18n-ally.sourceLanguage": "zh-cn"
+}

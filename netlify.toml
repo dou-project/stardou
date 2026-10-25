@@ -1,0 +1,11 @@
+[build.environment]
+  NODE_VERSION = "20"
+
+[build]
+  publish = "dist"
+  command = "npx pnpm@8.15.9 i && npx pnpm@8.15.9 run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
