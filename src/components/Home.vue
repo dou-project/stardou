@@ -67,7 +67,7 @@ const cards = MODES.map(m => ({
     </div>
 
     <div max-w-md mx-auto px-5 pt-14 pb-12 flex="~ col" items-center text-center>
-      <img src="/logo.webp" alt="" w-28 h-28 rounded-full shadow-sm class="ring-1 ring-gray-400/20">
+      <img src="/logo.webp" alt="" w-32 h-32 dark:rounded-full>
       <h1 font-title text-5xl font-semibold mt-6 class="tracking-[0.25em] pl-[0.25em]">
         {{ t('site-name') }}
       </h1>

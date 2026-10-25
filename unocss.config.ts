@@ -9,8 +9,8 @@ export default defineConfig({
       'square-btn': 'flex flex-gap-2 items-center border border-base px2 py1 relative !outline-none',
       'square-btn-mark': 'absolute h-2 w-2 bg-primary -right-0.2rem -top-0.2rem',
 
-      'bg-base': 'bg-[#fbf9f4] dark:bg-[#131313]',
-      'card': 'bg-white/70 dark:bg-white/3 border border-gray-400/15 rounded-xl',
+      'bg-base': 'bg-white dark:bg-[#131313]',
+      'card': 'bg-white dark:bg-white/3 border border-gray-400/20 rounded-xl',
       'ghost-btn': 'px-4 py-1 rounded inline-block border border-gray-400/30 cursor-pointer tracking-wide op80 hover:op100 hover:border-primary hover:text-primary transition-colors',
       'bg-overlay': 'bg-[#eee]:50 dark:bg-[#222]:50',
       'bg-header': 'bg-gray-500:5',
