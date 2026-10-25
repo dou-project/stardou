@@ -1,6 +1,6 @@
 import hans from './locales/zh-cn.json'
 import hant from './locales/zh-tw.json'
-import { mode } from './modes'
+import { isHome, mode } from './modes'
 
 const lang = window.navigator.language?.toLowerCase() || ''
 export const preferTraditional = lang.includes('hant') || lang.includes('tw') || lang.includes('hk')
@@ -13,7 +13,7 @@ function lookup(key: string): string | undefined {
 }
 
 // mode-specific strings live under `key@<mode id>` or `key@poem` and fall back to `key`
-const suffixes = [`@${mode.id}`, ...(mode.isPoem ? ['@poem'] : [])]
+const suffixes = isHome ? [] : [`@${mode.id}`, ...(mode.isPoem ? ['@poem'] : [])]
 
 export function t(key: keyof typeof hans, ...t: any[]): string {
   const str: string = suffixes.map(s => lookup(key + s)).find(Boolean) || lookup(key) || key
