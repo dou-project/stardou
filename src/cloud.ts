@@ -4,7 +4,7 @@
  * has signed in before or opens the board, so playing costs nothing extra.
  */
 import type { SupabaseClient, User } from '@supabase/supabase-js'
-import { computed, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 import type { GameMode, ModeId } from './modes'
 import { BASE } from './modes'
 import { SITE } from './site'
@@ -22,9 +22,6 @@ export interface Account {
 export const account = ref<Account | null>(null)
 /** false while a stored sign-in is being restored or a new one is loading its profile */
 export const authReady = ref(!cloudEnabled)
-
-/** signed in with a profile photo: what the game pages require */
-export const hasFullAccount = computed(() => !!account.value && account.value.avatarV != null)
 
 let clientPromise: Promise<SupabaseClient> | undefined
 

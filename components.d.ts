@@ -9,7 +9,6 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AccountPanel: typeof import('./src/components/AccountPanel.vue')['default']
     AppName: typeof import('./src/components/AppName.vue')['default']
-    AuthGate: typeof import('./src/components/AuthGate.vue')['default']
     Avatar: typeof import('./src/components/Avatar.vue')['default']
     Celebration: typeof import('./src/components/Celebration.vue')['default']
     CharBlock: typeof import('./src/components/CharBlock.vue')['default']

@@ -41,14 +41,6 @@ watch(isFinished, (v) => {
     showCheatSheet.value = false
 }, { flush: 'post' })
 
-// signing out inside the game goes back to the sign-in page
-if (cloudEnabled) {
-  watch(account, (a) => {
-    if (!a)
-      location.reload()
-  })
-}
-
 // out of tries counts as finished for the board, even if the player keeps guessing
 watch(() => isFinished.value || !!meta.value.failed, (v) => {
   if (v)
@@ -56,14 +48,14 @@ watch(() => isFinished.value || !!meta.value.failed, (v) => {
 }, { flush: 'post' })
 
 // finishing a puzzle (not reopening a finished one, nor stepping onto one in endless mode)
-// shows where you landed, after the result and confetti: the award ceremony for the daily
-// puzzle, 总榜 for endless ones
+// shows a signed-in player where they landed, after the result and confetti: the award
+// ceremony for the daily puzzle, 总榜 for endless ones. Guests just get the result.
 if (cloudEnabled) {
   watch([isFinished, dayNo], ([v, day], [old, oldDay]) => {
     if (v && !old && day === oldDay) {
       setTimeout(() => {
         // a second tab of the same game learns of the finish through localStorage; stay quiet there
-        if (document.visibilityState !== 'visible')
+        if (document.visibilityState !== 'visible' || !account.value)
           return
         if (isEndless) {
           leaderboardTab.value = 'overall'

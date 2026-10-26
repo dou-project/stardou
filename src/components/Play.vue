@@ -5,7 +5,7 @@ import { markStart, meta, tries, useHardClues, useNoHint, useStrictMode } from '
 import { t } from '~/i18n'
 import { TRIES_LIMIT, WORD_LENGTH, checkValidIdiom, getHardCluesViolation, numberToHanzi } from '~/logic'
 import { endlessKey, isEndless, mode } from '~/modes'
-import { cloudEnabled } from '~/cloud'
+import { account, cloudEnabled } from '~/cloud'
 
 const el = ref<HTMLInputElement>()
 const input = ref('')
@@ -200,7 +200,7 @@ watchEffect(() => {
         <div v-if="isFinishedDelay && isFinished">
           <ResultFooter />
           <button v-if="cloudEnabled" ghost-btn text-sm mt3 inline-flex items-center gap-1 @click="leaderboardTab = 'today'; showLeaderboard = true">
-            <div i-carbon-trophy /> {{ t('board-view') }}
+            <div i-carbon-trophy /> {{ t(account ? 'board-view' : 'board-join') }}
           </button>
           <PoemCard />
           <Countdown />

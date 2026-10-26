@@ -3,9 +3,6 @@ import type { AuthError } from '~/cloud'
 import { account, cropAvatar, signIn, signOut, signUp, uploadAvatar } from '~/cloud'
 import { t } from '~/i18n'
 
-/** on the sign-in page in front of the game, rather than under the leaderboard */
-defineProps<{ gate?: boolean }>()
-
 // most people reaching the form are new, so it opens on 注册
 const signingUp = ref(true)
 const email = ref('')
@@ -144,7 +141,7 @@ onBeforeUnmount(() => preview.value && URL.revokeObjectURL(preview.value))
   </div>
 
   <form v-else w-full max-w-72 mx-auto flex="~ col gap-2" select-text @submit.prevent="submit">
-    <p v-if="!gate" text-sm op70 mb1>
+    <p text-sm op70 mb1>
       {{ t('account-cta') }}
     </p>
     <div flex border="~ base rounded" overflow-hidden text-sm mb2>
@@ -197,7 +194,7 @@ onBeforeUnmount(() => preview.value && URL.revokeObjectURL(preview.value))
     <div v-if="missing.length" text-xs op50>
       {{ t('missing', missing.join('、')) }}
     </div>
-    <p v-if="!gate" text-xs op40>
+    <p text-xs op40>
       {{ t('account-sync-note') }}
     </p>
   </form>

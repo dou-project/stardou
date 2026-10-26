@@ -12,7 +12,7 @@ import {
   showSettings,
   showShareDialog,
 } from '~/state'
-import { cloudEnabled } from '~/cloud'
+import { account, cloudEnabled } from '~/cloud'
 import { mode } from '~/modes'
 
 const lg = breakpoints.lg
@@ -41,7 +41,7 @@ const lg = breakpoints.lg
     <Leaderboard :initial-mode="mode.id" :initial-tab="leaderboardTab" :active="showLeaderboard" @close="showLeaderboard = false" />
   </Modal>
   <Celebration
-    v-if="cloudEnabled && showCelebration"
+    v-if="cloudEnabled && showCelebration && account"
     @close="showCelebration = false"
     @board="showCelebration = false; leaderboardTab = 'today'; showLeaderboard = true"
   />
