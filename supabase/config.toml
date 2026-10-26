@@ -414,3 +414,22 @@ enabled = true
 # formatted with uppercase keywords, indent 2, max width 180, trailing commas,
 # and column/key alignment. Set to "null" to emit raw, unformatted SQL.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":180,\"commaStyle\":\"trailing\"}"
+
+# The live project behind https://dou-project.github.io/stardou/ (see supabase/README.md)
+[remotes.production]
+project_id = "dyscjjunfrilwevrlpjb"
+
+[remotes.production.auth]
+site_url = "https://dou-project.github.io/stardou/"
+additional_redirect_urls = ["https://dou-project.github.io/stardou/**"]
+
+[remotes.production.auth.email]
+# no confirmation email: players go straight from 注册 into the game
+enable_confirmations = false
+# keep the hosted defaults
+max_frequency = "1m"
+otp_length = 8
+
+[remotes.production.auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
