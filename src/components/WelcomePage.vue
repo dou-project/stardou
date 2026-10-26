@@ -75,6 +75,23 @@ const final = computed(() => {
 
     <div h-1px w-10 border="b base" m4 />
 
+    <p font-serif>
+      <b>{{ t('rules-extra-title') }}</b>
+    </p>
+    <p op70>
+      {{ t('rules-extra-intro') }}
+    </p>
+    <div flex="~ col gap-1" max-w-130 text-left op70>
+      <p><b>{{ t('strict-mode') }}</b>：{{ t('rules-strict') }}</p>
+      <p><b>{{ t('hard-clues') }}</b>：{{ t('rules-hard') }}</p>
+      <p><b>{{ t('hard-mode') }}</b>：{{ t('rules-no-hint') }}</p>
+    </div>
+    <p op50 text-sm>
+      {{ t('rules-extra-note') }}
+    </p>
+
+    <div h-1px w-10 border="b base" m4 />
+
     <button btn p="x6 y2" @click="start()">
       <span tracking-1 pl1>{{ t('start') }}</span>
     </button>
