@@ -55,11 +55,12 @@ watch(() => isFinished.value || !!meta.value.failed, (v) => {
     syncResults()
 }, { flush: 'post' })
 
-// finishing a puzzle (not reopening a finished one) shows where you landed, after the result
-// and confetti: the award ceremony for the daily puzzle, 总榜 for endless ones
+// finishing a puzzle (not reopening a finished one, nor stepping onto one in endless mode)
+// shows where you landed, after the result and confetti: the award ceremony for the daily
+// puzzle, 总榜 for endless ones
 if (cloudEnabled) {
-  watch(isFinished, (v, old) => {
-    if (v && !old) {
+  watch([isFinished, dayNo], ([v, day], [old, oldDay]) => {
+    if (v && !old && day === oldDay) {
       setTimeout(() => {
         // a second tab of the same game learns of the finish through localStorage; stay quiet there
         if (document.visibilityState !== 'visible')
