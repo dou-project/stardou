@@ -1,5 +1,7 @@
 /* eslint-disable no-console */
 // Run against a production build: pnpm build && pnpm test:poem-hints
+// Build without VITE_SUPABASE_* (e.g. move .env.local aside): with accounts on, the game pages
+// open on the sign-in page and ignore ?dev=hey.
 // Uses an installed Chrome/Chromium; override its path with CHROME.
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
