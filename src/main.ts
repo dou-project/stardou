@@ -2,7 +2,7 @@
 import { createApp, watch } from 'vue'
 import { isHome } from './modes'
 import { loadModeData } from './logic/poems'
-import { cloudEnabled, hasFullAccount, initCloud, whenAuthReady } from './cloud'
+import { account, cloudEnabled, hasFullAccount, initCloud, restoreProgress, whenAuthReady } from './cloud'
 
 import '@unocss/reset/tailwind.css'
 import './styles/main.css'
@@ -33,6 +33,19 @@ async function requireAccount() {
   gate.unmount()
 }
 
+/** games finished on other devices, before anything reads localStorage; never holds the page up for long */
+async function restoreFromAccount() {
+  if (!cloudEnabled)
+    return
+  await whenAuthReady()
+  if (!account.value)
+    return
+  await Promise.race([
+    restoreProgress().catch(() => 0),
+    new Promise(resolve => setTimeout(resolve, 4000)),
+  ])
+}
+
 if (import.meta.env.DEV && params.has('og')) {
   // cover images, rendered by `pnpm covers`
   loadModeData().then(async () => {
@@ -41,12 +54,16 @@ if (import.meta.env.DEV && params.has('og')) {
   })
 }
 else if (isHome) {
-  import('./components/Home.vue').then(({ default: Home }) => createApp(Home).mount('#app'))
+  // the cards say which daily puzzles are done
+  restoreFromAccount()
+    .then(() => import('./components/Home.vue'))
+    .then(({ default: Home }) => createApp(Home).mount('#app'))
 }
 else {
   // poem modes load their answer pool before any game state is evaluated
   loadModeData().then(async () => {
     await requireAccount()
+    await restoreFromAccount()
     const { default: App } = await import('./App.vue')
     createApp(App).mount('#app')
   })
