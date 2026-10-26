@@ -156,7 +156,7 @@ export async function signOut() {
   await c.auth.signOut()
 }
 
-interface StoredMeta {
+export interface StoredMeta {
   passed?: boolean
   answer?: boolean
   failed?: boolean
@@ -164,6 +164,7 @@ interface StoredMeta {
   hint?: boolean
   hintLevel?: number
   duration?: number
+  [field: string]: unknown
 }
 
 export interface ResultRow {
@@ -180,7 +181,21 @@ const META_KEY = /^stardou-(chengyu|wuyan|qiyan)(?:-endless:(.*))?-tries-meta$/
 
 /** every finished puzzle in this browser, across all modes and endless keys */
 export function collectResults(storage: Storage = localStorage): ResultRow[] {
-  const rows: ResultRow[] = []
+  return collectGames(storage).map(g => g.result)
+}
+
+export interface Game {
+  mode: ModeId
+  puzzle: string
+  meta: StoredMeta
+  result: ResultRow
+}
+
+const finished = (m?: StoredMeta) => !!m && !!(m.passed || m.answer || m.failed) && !!m.tries?.length
+
+/** every finished game in this browser with its full record, across all modes and endless keys */
+export function collectGames(storage: Storage = localStorage): Game[] {
+  const games: Game[] = []
   for (let i = 0; i < storage.length; i++) {
     const match = storage.key(i)?.match(META_KEY)
     if (!match)
@@ -194,19 +209,80 @@ export function collectResults(storage: Storage = localStorage): ResultRow[] {
       continue
     }
     for (const [n, m] of Object.entries(history)) {
-      if (!m || !(m.passed || m.answer || m.failed) || !m.tries?.length)
+      if (!finished(m))
         continue
-      rows.push({
+      const puzzle = endlessKey == null ? `d${n}` : `e:${endlessKey}:${n}`
+      games.push({
         mode: mode as ModeId,
-        puzzle: endlessKey == null ? `d${n}` : `e:${endlessKey}:${n}`,
-        tries: Math.min(m.tries.length, 200),
-        hint_level: Math.min(m.hintLevel || (m.hint ? 1 : 0), 6),
-        passed: !!m.passed,
-        duration_ms: m.duration ? Math.min(Math.round(m.duration), 7 * 86400000) : null,
+        puzzle,
+        meta: m,
+        result: {
+          mode: mode as ModeId,
+          puzzle,
+          tries: Math.min(m.tries!.length, 200),
+          hint_level: Math.min(m.hintLevel || (m.hint ? 1 : 0), 6),
+          passed: !!m.passed,
+          duration_ms: m.duration ? Math.min(Math.round(m.duration), 7 * 86400000) : null,
+        },
       })
     }
   }
-  return rows
+  return games
+}
+
+/** the localStorage key and history index a puzzle id lives at (inverse of collectGames) */
+export function storageSlot(mode: ModeId, puzzle: string) {
+  if (/^d\d+$/.test(puzzle))
+    return { key: `stardou-${mode}-tries-meta`, n: puzzle.slice(1) }
+  // endless keys may contain ':', the index is after the last one
+  const m = puzzle.match(/^e:(.*):(\d+)$/)
+  return m ? { key: `stardou-${mode}-endless:${m[1]}-tries-meta`, n: m[2] } : null
+}
+
+/**
+ * Bring this player's finished games from other devices into this browser, so a puzzle
+ * finished elsewhere shows as played. Games already finished here are kept. Run before the
+ * game's own state reads localStorage.
+ */
+export async function restoreProgress(storage: Storage = localStorage) {
+  const user = account.value
+  if (!user)
+    return 0
+  const c = await client()
+  const { data, error } = await c.from('progress').select('mode, puzzle, meta').eq('user_id', user.id).limit(5000)
+  if (error || !data)
+    return 0
+  return mergeProgress(data as { mode: ModeId; puzzle: string; meta: StoredMeta }[], storage)
+}
+
+export function mergeProgress(rows: { mode: ModeId; puzzle: string; meta: StoredMeta }[], storage: Storage) {
+  const histories = new Map<string, Record<string, StoredMeta>>()
+  let restored = 0
+  for (const { mode, puzzle, meta } of rows) {
+    const slot = storageSlot(mode, puzzle)
+    if (!slot || !finished(meta))
+      continue
+    if (!histories.has(slot.key)) {
+      let h: Record<string, StoredMeta> = {}
+      try {
+        h = JSON.parse(storage.getItem(slot.key) || '{}') || {}
+      }
+      catch {}
+      histories.set(slot.key, h)
+    }
+    const history = histories.get(slot.key)!
+    if (finished(history[slot.n]))
+      continue
+    history[slot.n] = meta
+    restored++
+  }
+  for (const [key, history] of histories) {
+    try {
+      storage.setItem(key, JSON.stringify(history))
+    }
+    catch {}
+  }
+  return restored
 }
 
 let syncing: Promise<void> = Promise.resolve()
@@ -216,17 +292,25 @@ export function syncResults() {
   syncing = syncing.then(async () => {
     if (!account.value || !clientPromise)
       return
-    const rows = collectResults()
-    if (!rows.length)
+    const games = collectGames()
+    if (!games.length)
       return
     const c = await client()
     const user_id = account.value.id
-    const { error } = await c.from('results').upsert(
-      rows.map(r => ({ ...r, user_id })),
-      { onConflict: 'user_id,mode,puzzle', ignoreDuplicates: true },
-    )
-    if (error)
-      console.warn('[stardou] sync failed', error.message)
+    const [results, progress] = await Promise.all([
+      c.from('results').upsert(
+        games.map(g => ({ ...g.result, user_id })),
+        { onConflict: 'user_id,mode,puzzle', ignoreDuplicates: true },
+      ),
+      c.from('progress').upsert(
+        games.map(g => ({ user_id, mode: g.mode, puzzle: g.puzzle, meta: g.meta, updated_at: new Date().toISOString() })),
+        { onConflict: 'user_id,mode,puzzle' },
+      ),
+    ])
+    for (const { error } of [results, progress]) {
+      if (error)
+        console.warn('[stardou] sync failed', error.message)
+    }
   }).catch(() => {})
   return syncing
 }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { TodayRow } from '../src/cloud'
-import { collectResults, placeOf, rankToday, todayPuzzle } from '../src/cloud'
+import { collectGames, collectResults, mergeProgress, placeOf, rankToday, storageSlot, todayPuzzle } from '../src/cloud'
 import { MODES } from '../src/modes'
 
 function storage(items: Record<string, unknown>): Storage {
@@ -87,5 +87,57 @@ describe('placeOf', () => {
     expect(placeOf([row('a'), row('x', { tries: 12 })], 'x', 10)?.tier).toBe('lost')
     expect(placeOf([row('a')], 'a', 10)).toMatchObject({ tier: 'only', beaten: 0 })
     expect(placeOf([row('a')], 'z', 10)).toBeNull()
+  })
+})
+
+function memoryStorage(items: Record<string, unknown> = {}): Storage {
+  const map = new Map(Object.entries(items).map(([k, v]) => [k, typeof v === 'string' ? v : JSON.stringify(v)]))
+  return {
+    get length() { return map.size },
+    key: (i: number) => [...map.keys()][i] ?? null,
+    getItem: (k: string) => map.get(k) ?? null,
+    setItem: (k: string, v: string) => {
+      map.set(k, v)
+    },
+    removeItem: (k: string) => {
+      map.delete(k)
+    },
+    clear: () => map.clear(),
+  }
+}
+
+describe('progress across devices', () => {
+  it('maps puzzle ids back to localStorage slots', () => {
+    expect(storageSlot('chengyu', 'd12')).toEqual({ key: 'stardou-chengyu-tries-meta', n: '12' })
+    expect(storageSlot('qiyan', 'e:春风 37:4')).toEqual({ key: 'stardou-qiyan-endless:春风 37-tries-meta', n: '4' })
+    expect(storageSlot('wuyan', 'e:a:b:7')).toEqual({ key: 'stardou-wuyan-endless:a:b-tries-meta', n: '7' })
+    expect(storageSlot('wuyan', 'x1')).toBeNull()
+  })
+
+  it('round-trips: games collected on one device restore on another', () => {
+    const desk = memoryStorage({
+      'stardou-chengyu-tries-meta': { 1: { passed: true, tries: ['画龙点睛'], hintLevel: 1, duration: 5000, end: 9 } },
+      'stardou-qiyan-endless:春风 37-tries-meta': { 3: { answer: true, failed: true, tries: Array(15).fill('x') } },
+    })
+    const rows = collectGames(desk).map(({ mode, puzzle, meta }) => ({ mode, puzzle, meta }))
+    const phone = memoryStorage({
+      // started today's puzzle on the phone but didn't finish; another puzzle finished here only
+      'stardou-chengyu-tries-meta': { 1: { tries: ['一心一意'] }, 2: { passed: true, tries: ['守株待兔'] } },
+    })
+    expect(mergeProgress(rows, phone)).toBe(2)
+    expect(JSON.parse(phone.getItem('stardou-chengyu-tries-meta')!)).toEqual({
+      1: { passed: true, tries: ['画龙点睛'], hintLevel: 1, duration: 5000, end: 9 },
+      2: { passed: true, tries: ['守株待兔'] },
+    })
+    expect(JSON.parse(phone.getItem('stardou-qiyan-endless:春风 37-tries-meta')!)[3].answer).toBe(true)
+  })
+
+  it('keeps a game already finished on this device, and ignores unfinished ones from the server', () => {
+    const phone = memoryStorage({ 'stardou-chengyu-tries-meta': { 1: { passed: true, tries: ['a', 'b'] } } })
+    expect(mergeProgress([
+      { mode: 'chengyu', puzzle: 'd1', meta: { passed: true, tries: ['c'] } },
+      { mode: 'chengyu', puzzle: 'd2', meta: { tries: ['d'] } },
+    ], phone)).toBe(0)
+    expect(JSON.parse(phone.getItem('stardou-chengyu-tries-meta')!)).toEqual({ 1: { passed: true, tries: ['a', 'b'] } })
   })
 })

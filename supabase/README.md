@@ -8,13 +8,14 @@
 - 注册需要邮箱、密码、昵称和一张头像。头像在浏览器里居中裁成正方形，缩到 256px 后再上传，每张只有十几 KB。
 - 登录后，这个浏览器里所有模式（包括无限模式）玩完的题都会自动上传。每题只上传一次，之后不能修改。
 - 用完次数还没认输，也算这题结束。
+- **换设备：** 做完的题连同猜过的词一起存一份到 `progress` 表，只有本人能读（猜过的词里有答案）。在别的设备登录后，游戏页面打开前会先把这些记录取回浏览器，所以在电脑上做完的题，手机上也显示已完成。已经在这台设备上做完的题保持不变。
 - **今日榜**：成语、五言、七言各一张，比当天的每日一题。通关的人按猜的次数从少到多排，次数相同比用了几个提示，再相同比用时。认输或超过次数上限的排在最后，不给名次。
 - **总榜**：可以看全部模式，也可以只看单个模式。按通关题数从多到少排，题数相同比平均猜测次数。通关指在次数上限内猜中，成语 10 次，诗句 15 次。
 
 ## 上线
 
 1. 在 supabase.com 新建项目。
-2. 建表：在 SQL Editor 里执行 [migrations/20261025000000_leaderboard.sql](./migrations/20261025000000_leaderboard.sql)。也可以用 CLI：`npx supabase link --project-ref <ref> && npx supabase db push`。这一步会同时建好头像用的 `avatars` 存储桶。
+2. 建表：在 SQL Editor 里按顺序执行 [migrations/](./migrations/) 里的文件。也可以用 CLI：`npx supabase link --project-ref <ref> && npx supabase db push`。这一步会同时建好头像用的 `avatars` 存储桶。
 3. Authentication → URL Configuration：Site URL 填 `https://dou-project.github.io/stardou/`，Redirect URLs 加上 `https://dou-project.github.io/stardou/**`。
 4. Authentication → Providers → Email：
    - 想让玩家注册完直接玩：关掉 **Confirm email**。
