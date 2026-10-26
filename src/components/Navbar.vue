@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { dayNoHanzi, showDashboard, showHelp, showSettings, useMask } from '~/state'
+import { dayNoHanzi, leaderboardTab, showDashboard, showHelp, showLeaderboard, showSettings, useMask } from '~/state'
+import { cloudEnabled } from '~/cloud'
 import { gamesCount } from '~/storage'
 import { endlessKey, href, isEndless } from '~/modes'
 import { t } from '~/i18n'
@@ -39,6 +40,9 @@ function openHelp() {
       <div flex items-center justify-end w-24 gap-1>
         <button icon-btn mx1.5 :title="t('rule')" @click="openHelp()">
           <div i-carbon-help />
+        </button>
+        <button v-if="cloudEnabled" icon-btn mx1.5 :title="t('board-title')" @click="leaderboardTab = 'today'; showLeaderboard = true">
+          <div i-carbon-trophy />
         </button>
         <button v-if="gamesCount" icon-btn mx1.5 :title="t('dashboard')" @click="toggleDashboard()">
           <div i-carbon-chart-column />

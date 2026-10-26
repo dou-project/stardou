@@ -156,7 +156,12 @@ export const endlessKey = isEndless
   ? normalizeKey(params.has('key') ? params.get('key') || '' : readLastKey())
   : ''
 
+/** `?word=` plays a custom answer; kept apart so it never counts as that day's result */
+const customWord = params.get('word')
+
 /** localStorage namespace for the current page; every endless key keeps its own record */
-export const storagePrefix = isEndless
-  ? `${mode.storagePrefix}-endless:${endlessKey}`
-  : mode.storagePrefix
+export const storagePrefix = customWord
+  ? `${mode.storagePrefix}-word:${customWord}`
+  : isEndless
+    ? `${mode.storagePrefix}-endless:${endlessKey}`
+    : mode.storagePrefix

@@ -1,11 +1,12 @@
 import { initialized, markEnd, markStart, meta, pauseTimer, useStrictMode } from './storage'
-import { answer, dayNo, daySince, isDev, isFinished, isPassed, showCheatSheet, showHelp } from './state'
+import { answer, dayNo, daySince, isDev, isFinished, isPassed, leaderboardTab, showCelebration, showCheatSheet, showHelp, showLeaderboard } from './state'
 import { locale, t } from './i18n'
 import { START_DATE } from './logic/constants'
 import { tryFixAnswer } from './logic/answer-fix'
 import { ensurePoemCorpus } from './logic/poems'
 import { endlessKey, isEndless, mode } from './modes'
 import { SITE } from './site'
+import { account, cloudEnabled, syncResults } from './cloud'
 
 useTitle(computed(() => `${locale.value === 'hant' ? mode.titleHant : mode.title} · ${t('site-name')} ${SITE.nameEn}`))
 
@@ -39,6 +40,41 @@ watch(isFinished, (v) => {
   if (v)
     showCheatSheet.value = false
 }, { flush: 'post' })
+
+// signing out inside the game goes back to the sign-in page
+if (cloudEnabled) {
+  watch(account, (a) => {
+    if (!a)
+      location.reload()
+  })
+}
+
+// out of tries counts as finished for the board, even if the player keeps guessing
+watch(() => isFinished.value || !!meta.value.failed, (v) => {
+  if (v)
+    syncResults()
+}, { flush: 'post' })
+
+// finishing a puzzle (not reopening a finished one) shows where you landed, after the result
+// and confetti: the award ceremony for the daily puzzle, 总榜 for endless ones
+if (cloudEnabled) {
+  watch(isFinished, (v, old) => {
+    if (v && !old) {
+      setTimeout(() => {
+        // a second tab of the same game learns of the finish through localStorage; stay quiet there
+        if (document.visibilityState !== 'visible')
+          return
+        if (isEndless) {
+          leaderboardTab.value = 'overall'
+          showLeaderboard.value = true
+        }
+        else {
+          showCelebration.value = true
+        }
+      }, 2000)
+    }
+  })
+}
 
 const visible = useDocumentVisibility()
 

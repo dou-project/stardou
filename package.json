@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@iconify-json/ri": "^1.1.4",
+    "@supabase/supabase-js": "2.45.4",
     "@vueuse/core": "^9.6.0",
     "axios": "^1.2.1",
     "canvas-confetti": "^1.6.0",
