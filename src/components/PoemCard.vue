@@ -27,7 +27,7 @@ const grade = computed(() => poem.value?.g ? t(`grade-${poem.value.g}` as any) :
       {{ poem.t }}
     </div>
     <div op60 text-sm mb3>
-      {{ poem.d }}
+      {{ poem.d }} · {{ poem.a }}
     </div>
     <div v-for="l, i of lines" :key="i" text-sm sm:text-base sm:tracking-1 leading-loose>
       <span op80>{{ l[0] }}</span><b text-ok>{{ l[1] }}</b><span op80>{{ l[2] }}</span>
