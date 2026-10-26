@@ -6,6 +6,7 @@ import { getAnswerOfDay, getPoolSize } from './answers'
 import { seedShuffle } from './answers/utils'
 import { endlessKey, isEndless, mode } from './modes'
 import { t } from './i18n'
+import { cloudEnabled } from './cloud'
 
 export const isIOS = /iPad|iPhone|iPod/.test(navigator.platform) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
 export const isMobile = isIOS || /iPad|iPhone|iPod|Android|Phone|webOS/i.test(navigator.userAgent)
@@ -44,8 +45,9 @@ export const useNumberTone = computed(() => {
 })
 
 const params = new URLSearchParams(window.location.search)
-// production builds ignore ?dev=hey: it prints the answer and unlocks any day
-export const isDev = !!import.meta.env.DEV && (!!import.meta.hot || params.get('dev') === 'hey')
+// ?dev=hey prints the answer and unlocks any day, so a build with the leaderboard ignores it;
+// builds without one (CI, test/poem-hints.mjs) keep it
+export const isDev = !!import.meta.hot || (params.get('dev') === 'hey' && (!!import.meta.env.DEV || !cloudEnabled))
 function localDayIndex(d: Date) {
   return Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000)
 }
