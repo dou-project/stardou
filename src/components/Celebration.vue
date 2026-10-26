@@ -43,7 +43,9 @@ const title = computed(() => {
 
 const top3 = computed(() => rows.value.slice(0, 3))
 const meInTop3 = computed(() => !!place.value && place.value.index < 3)
-const score = (r: TodayRow) => r.passed && r.tries <= mode.tries ? r.tries : t('cele-gave-up')
+// gave up or over the limit: no placing, like 今日榜
+const solved = (r: TodayRow) => r.passed && r.tries <= mode.tries
+const score = (r: TodayRow) => solved(r) ? r.tries : t('cele-gave-up')
 const CROWNS = ['gold', 'silver', 'bronze']
 const SPARKLES = Array.from({ length: 14 }, (_, i) => ({
   left: `${(i * 37 + 11) % 100}%`,
@@ -131,7 +133,8 @@ const SPARKLES = Array.from({ length: 14 }, (_, i) => ({
               <span>{{ t('cele-col-rank') }}</span><span>{{ t('cele-col-player') }}</span><span>{{ t('cele-col-score') }}</span>
             </div>
             <div v-for="r, i of top3" :key="r.user_id" class="trow" :class="{ me: r.user_id === account?.id }">
-              <span class="rank"><i class="crown-icon" :class="CROWNS[i]">👑</i>{{ i + 1 }}</span>
+              <span v-if="solved(r)" class="rank"><i class="crown-icon" :class="CROWNS[i]">👑</i>{{ i + 1 }}</span>
+              <span v-else class="rank">-</span>
               <span class="who">
                 <Avatar :user-id="r.user_id" :v="r.avatar_v" :name="r.nickname" class="avatar" />
                 {{ r.user_id === account?.id ? t('cele-you') : r.nickname }}
@@ -143,7 +146,7 @@ const SPARKLES = Array.from({ length: 14 }, (_, i) => ({
                 <span v-for="i of 4" :key="i">⬇</span>
               </div>
               <div class="trow me big">
-                <span class="rank">{{ place.index + 1 }}</span>
+                <span class="rank">{{ solved(place.me) ? place.index + 1 : '-' }}</span>
                 <span class="who">
                   <Avatar :user-id="place.me.user_id" :v="place.me.avatar_v" :name="place.me.nickname" class="avatar" />
                   {{ t('cele-you') }}
