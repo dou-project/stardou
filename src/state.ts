@@ -1,8 +1,8 @@
 import { breakpointsTailwind } from '@vueuse/core'
 import type { MatchType, ParsedChar } from './logic'
 import { START_DATE, TRIES_LIMIT, WORD_LENGTH, parseWord as _parseWord, testAnswer as _testAnswer, checkPass, getHint, numberToHanzi } from './logic'
-import { useNumberTone as _useNumberTone, inputMode, meta, spMode, tries } from './storage'
-import { getAnswerOfDay } from './answers'
+import { useNumberTone as _useNumberTone, inputMode, meta, pauseTimer, spMode, tries } from './storage'
+import { getAnswerOfDay, getPoolSize } from './answers'
 import { seedShuffle } from './answers/utils'
 import { endlessKey, isEndless, mode } from './modes'
 import { t } from './i18n'
@@ -137,9 +137,19 @@ export function getSymbolState(symbol?: string | number, key?: '_1' | '_2' | 'to
   return null
 }
 
-/** endless mode: the next puzzle of the same key, without reloading */
+/** endless mode: go to puzzle `n` (0-based) of the same key without reloading; an unfinished one keeps its guesses */
+export function goToPuzzle(n: number) {
+  // past the last puzzle the sequence starts over from the first
+  n = Math.max(0, Math.floor(n)) % getPoolSize()
+  if (n === dayNo.value)
+    return
+  pauseTimer()
+  dayNo.value = n
+  window.scrollTo({ top: 0 })
+}
+
 export function nextPuzzle() {
-  dayNo.value += 1
+  goToPuzzle(dayNo.value + 1)
 }
 
 if (isEndless && endlessKey) {

@@ -26,7 +26,7 @@ function openHelp() {
         <AppName />
         <div text-xs op45 mt-0.5 ws-nowrap truncate max-w-48 tracking-wide>
           <template v-if="isEndless && endlessKey">
-            {{ t('endless') }} · {{ endlessKey }} · {{ dayNoHanzi }}
+            {{ t('endless') }} · {{ endlessKey }}
           </template>
           <template v-else-if="isEndless">
             {{ t('endless') }}

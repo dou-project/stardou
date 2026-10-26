@@ -16,6 +16,7 @@ watchEffect(() => {
   <main font-sans text="center gray-700 dark:gray-300" select-none :class="{ colorblind }">
     <NotTodayBanner v-if="!isEndless && dayNo < daySince" />
     <Navbar />
+    <EndlessBar v-if="isEndless && endlessKey && answer.word" />
     <div p="4">
       <EndlessKey v-if="isEndless && !endlessKey" />
       <NoQuizToday v-else-if="!answer.word" />

@@ -37,21 +37,12 @@ function status(m: GameMode) {
   return ''
 }
 
-function endlessResume(m: GameMode) {
-  const key = localStorage.getItem(`${m.storagePrefix}-endless-last`)
-  if (!key)
-    return ''
-  const n = readJSON<Record<string, number>>(`${m.storagePrefix}-endless-progress`)?.[key] || 0
-  return t('endless-resume', n + 1)
-}
-
 const cards = MODES.map(m => ({
   mode: m,
   title: computed(() => locale.value === 'hant' ? m.titleHant : m.title),
   blurb: computed(() => locale.value === 'hant' ? m.blurbHant : m.blurb),
   tries: t('tries-count', hanziCount(m.tries)),
   status: status(m),
-  resume: endlessResume(m),
 }))
 </script>
 
@@ -104,9 +95,9 @@ const cards = MODES.map(m => ({
               {{ t('daily-play') }}
               <span v-if="c.status" text-xs op80>· {{ t(c.status === 'done' ? 'status-done' : 'status-playing') }}</span>
             </a>
-            <a :href="modeUrl(c.mode, true)" ghost-btn py2 flex items-center justify-center gap-1 :title="c.resume">
+            <a :href="modeUrl(c.mode, true)" ghost-btn py2 flex items-center justify-center gap-1>
               <div i-carbon-infinity-symbol />
-              {{ c.resume || t('endless') }}
+              {{ t('endless') }}
             </a>
           </div>
         </section>

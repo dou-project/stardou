@@ -15,11 +15,6 @@ const formatted = computed(() => {
   const s = Math.floor((ms.value % 60000) / 1000)
   return t('time-format', h, m.toString().padStart(2, '0'), s.toString().padStart(2, '0'))
 })
-
-function next() {
-  nextPuzzle()
-  window.scrollTo({ top: 0 })
-}
 </script>
 
 <template>
@@ -32,7 +27,7 @@ function next() {
     <div h-1px w-10 border="t base" mt4 mb6 mxa />
 
     <div v-if="isEndless" flex="~ col center gap-3">
-      <button btn p="x6 y2" @click="next()">
+      <button btn p="x6 y2" @click="nextPuzzle()">
         <span tracking-1 pl1>{{ t('next-puzzle') }}</span>
       </button>
       <a :href="`${modeUrl(mode, true)}?key=`" text-sm op50 hover:op80>

@@ -3,8 +3,11 @@ import { ENDLESS_KEY_MAX, mode, modeUrl, normalizeKey } from '~/modes'
 import { readEndlessProgress } from '~/state'
 import { t } from '~/i18n'
 
-const key = ref('')
 const recent = Object.entries(readEndlessProgress()).reverse()
+// prefill the last key, so fixing a typo is a small edit
+const key = ref(recent[0]?.[0] || '')
+const el = ref<HTMLInputElement>()
+onMounted(() => el.value?.select())
 
 const WORDS = '春风 秋月 明月 青山 白云 流水 星河 清风 落花 细雨 晚霞 长亭 孤帆 远山 寒梅 新柳 江南 塞北 小桥 斜阳 芳草 归雁 渔火 松涛 竹影 桃花 杏雨 荷风 菊香 雪夜'.split(' ')
 
@@ -32,7 +35,7 @@ function start(k: string) {
 
     <div border="2 base" w-full mt-2>
       <input
-        v-model="key"
+        ref="el" v-model="key"
         bg-transparent w-full p3 outline-none text-center text-lg
         type="text" autocomplete="off" :maxlength="ENDLESS_KEY_MAX"
         :placeholder="t('endless-key-placeholder')"

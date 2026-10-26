@@ -15,6 +15,7 @@ declare module '@vue/runtime-core' {
     Cover: typeof import('./src/components/Cover.vue')['default']
     Dashboard: typeof import('./src/components/Dashboard.vue')['default']
     DashboardItem: typeof import('./src/components/DashboardItem.vue')['default']
+    EndlessBar: typeof import('./src/components/EndlessBar.vue')['default']
     EndlessKey: typeof import('./src/components/EndlessKey.vue')['default']
     FailedPage: typeof import('./src/components/FailedPage.vue')['default']
     Hint: typeof import('./src/components/Hint.vue')['default']
