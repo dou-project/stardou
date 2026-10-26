@@ -34,6 +34,9 @@ jobs:
           # the site lives at https://<owner>.github.io/<repo>/
           BASE_PATH: /${{ github.event.repository.name }}/
           SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+          # accounts + 气哭语文老师榜; leave unset to build without them, see supabase/README.md
+          VITE_SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist

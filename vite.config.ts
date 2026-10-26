@@ -50,6 +50,9 @@ export default defineConfig({
             return 'idioms'
           if (id.includes('polyphones.json'))
             return 'polyphones'
+          // accounts only, fetched on demand by src/cloud.ts
+          if (id.includes('@supabase'))
+            return 'supabase'
           if (id.includes('node_modules') && !id.endsWith('.css'))
             return 'vendor'
         },

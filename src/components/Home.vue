@@ -3,6 +3,9 @@ import { MODES, href, modeUrl } from '~/modes'
 import type { GameMode } from '~/modes'
 import { locale, t } from '~/i18n'
 import { SITE } from '~/site'
+import { cloudEnabled } from '~/cloud'
+
+const showBoard = ref(false)
 
 const isDark = useDark()
 useTitle(computed(() => `${t('site-name')} ${SITE.nameEn} - ${t('description')}`))
@@ -51,6 +54,9 @@ const cards = MODES.map(m => ({
     <div absolute top-4 right-4 flex="~ gap-4" items-center text-sm>
       <button op60 hover:op100 @click="locale = locale === 'hans' ? 'hant' : 'hans'">
         {{ locale === 'hans' ? '繁' : '简' }}
+      </button>
+      <button v-if="cloudEnabled" icon-btn :title="t('board-title')" @click="showBoard = true">
+        <div i-carbon-trophy />
       </button>
       <button icon-btn @click="isDark = !isDark">
         <div i-carbon-sun dark:i-carbon-moon />
@@ -103,6 +109,11 @@ const cards = MODES.map(m => ({
         </section>
       </div>
 
+      <button v-if="cloudEnabled" ghost-btn mt6 py2 w-full flex items-center justify-center gap-2 @click="showBoard = true">
+        <div i-carbon-trophy text-primary />
+        {{ t('board-title') }}
+      </button>
+
       <div mt12 text-xs op45 leading-6>
         <div>
           inspired by <a href="https://www.nytimes.com/games/wordle/index.html" target="_blank" hover:text-primary>Wordle</a>
@@ -115,5 +126,8 @@ const cards = MODES.map(m => ({
         </a>
       </div>
     </div>
+    <Modal v-if="cloudEnabled" v-model="showBoard" direction="top">
+      <Leaderboard :active="showBoard" @close="showBoard = false" />
+    </Modal>
   </main>
 </template>

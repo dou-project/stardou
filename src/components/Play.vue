@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { filterNonChineseChars } from '@hankit/tools'
-import { answer, dayNo, hintRevealed, isDev, isFailed, isFinished, parseWord, parsedTries, showCheatSheet, showFailed, showHelp, showHint } from '~/state'
+import { answer, dayNo, hintRevealed, isDev, isFailed, isFinished, leaderboardTab, parseWord, parsedTries, showCheatSheet, showFailed, showHelp, showHint, showLeaderboard } from '~/state'
 import { markStart, meta, tries, useHardClues, useNoHint, useStrictMode } from '~/storage'
 import { t } from '~/i18n'
 import { TRIES_LIMIT, WORD_LENGTH, checkValidIdiom, getHardCluesViolation, numberToHanzi } from '~/logic'
 import { endlessKey, isEndless, mode } from '~/modes'
+import { cloudEnabled } from '~/cloud'
 
 const el = ref<HTMLInputElement>()
 const input = ref('')
@@ -198,6 +199,9 @@ watchEffect(() => {
       <Transition name="fade-in">
         <div v-if="isFinishedDelay && isFinished">
           <ResultFooter />
+          <button v-if="cloudEnabled" ghost-btn text-sm mt3 inline-flex items-center gap-1 @click="leaderboardTab = 'today'; showLeaderboard = true">
+            <div i-carbon-trophy /> {{ t('board-view') }}
+          </button>
           <PoemCard />
           <Countdown />
         </div>

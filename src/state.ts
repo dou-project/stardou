@@ -28,6 +28,11 @@ export const showFailed = ref(false)
 export const showDashboard = ref(false)
 export const showCheatSheet = ref(false)
 export const showShareDialog = ref(false)
+export const showLeaderboard = ref(false)
+/** the award ceremony after finishing a daily puzzle */
+export const showCelebration = ref(false)
+/** which board the leaderboard opens on */
+export const leaderboardTab = ref<'today' | 'overall'>('today')
 export const useMask = ref(false)
 
 export const useNumberTone = computed(() => {
@@ -39,7 +44,8 @@ export const useNumberTone = computed(() => {
 })
 
 const params = new URLSearchParams(window.location.search)
-export const isDev = import.meta.hot || params.get('dev') === 'hey'
+// production builds ignore ?dev=hey: it prints the answer and unlocks any day
+export const isDev = !!import.meta.env.DEV && (!!import.meta.hot || params.get('dev') === 'hey')
 function localDayIndex(d: Date) {
   return Math.round(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000)
 }

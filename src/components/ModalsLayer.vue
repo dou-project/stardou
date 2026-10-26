@@ -1,14 +1,19 @@
 <script setup lang="ts">
 import {
   breakpoints,
+  leaderboardTab,
+  showCelebration,
   showCheatSheet,
   showDashboard,
   showFailed,
   showHelp,
   showHint,
+  showLeaderboard,
   showSettings,
   showShareDialog,
 } from '~/state'
+import { cloudEnabled } from '~/cloud'
+import { mode } from '~/modes'
 
 const lg = breakpoints.lg
 </script>
@@ -32,6 +37,14 @@ const lg = breakpoints.lg
   <Modal v-model="showShareDialog" direction="top">
     <ShareDialog />
   </Modal>
+  <Modal v-if="cloudEnabled" v-model="showLeaderboard" direction="top">
+    <Leaderboard :initial-mode="mode.id" :initial-tab="leaderboardTab" :active="showLeaderboard" @close="showLeaderboard = false" />
+  </Modal>
+  <Celebration
+    v-if="cloudEnabled && showCelebration"
+    @close="showCelebration = false"
+    @board="showCelebration = false; leaderboardTab = 'today'; showLeaderboard = true"
+  />
   <Modal v-model="showHelp" direction="top">
     <WelcomePage />
   </Modal>
