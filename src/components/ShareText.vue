@@ -32,6 +32,7 @@ const lines = computed(() => {
       isEndless ? `${t('endless')} ${endlessKey}` : '',
       dayNoHanzi.value,
       meta.value.strict ? t('strict-mode').slice(0, 2) : '',
+      meta.value.hardClues ? t('hard-clues').slice(0, 2) : '',
       !meta.value.hint ? t('hint-level-none') : '',
     ].filter(Boolean).join(' · '),
     '',

@@ -17,6 +17,8 @@ export const useNoHint = useStorage('handle-hard-mode', false)
 export const useNumberTone = useStorage('handle-number-tone', false)
 export const useCheckAssist = useStorage('handle-check-assist', false)
 export const useStrictMode = useStorage('handle-strict', false)
+/** 困难模式: guesses must reuse the characters already found */
+export const useHardClues = useStorage('stardou-hard-clues', false)
 export const acceptCollecting = useStorage('handle-accept-collecting', true)
 
 export const meta = computed<TriesMeta>({

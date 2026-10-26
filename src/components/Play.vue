@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { filterNonChineseChars } from '@hankit/tools'
-import { answer, dayNo, hintRevealed, isDev, isFailed, isFinished, parseWord, showCheatSheet, showFailed, showHelp, showHint } from '~/state'
-import { markStart, meta, tries, useNoHint, useStrictMode } from '~/storage'
+import { answer, dayNo, hintRevealed, isDev, isFailed, isFinished, parseWord, parsedTries, showCheatSheet, showFailed, showHelp, showHint } from '~/state'
+import { markStart, meta, tries, useHardClues, useNoHint, useStrictMode } from '~/storage'
 import { t } from '~/i18n'
-import { TRIES_LIMIT, WORD_LENGTH, checkValidIdiom } from '~/logic'
+import { TRIES_LIMIT, WORD_LENGTH, checkValidIdiom, getHardCluesViolation, numberToHanzi } from '~/logic'
 import { endlessKey, isEndless, mode } from '~/modes'
 
 const el = ref<HTMLInputElement>()
 const input = ref('')
 const inputValue = ref('')
 const showToast = autoResetRef(false, 1000)
+const toastText = ref('')
 const shake = autoResetRef(false, 500)
 
 const isFinishedDelay = debouncedRef(isFinished, 800)
@@ -31,16 +32,29 @@ watchEffect(() => {
 function enter() {
   if (input.value.length !== WORD_LENGTH)
     return
-  if (!checkValidIdiom(input.value, useStrictMode.value)) {
-    showToast.value = true
-    shake.value = true
-    return false
+  if (!checkValidIdiom(input.value, useStrictMode.value))
+    return reject(t('invalid-idiom'))
+  // the setting is fixed by the first guess; games begun before it existed stay unconstrained
+  const hardClues = meta.value.hardClues ?? (!tries.value.length && useHardClues.value)
+  const violation = hardClues && getHardCluesViolation(input.value, parsedTries.value)
+  if (violation) {
+    return reject(violation.type === 'exact'
+      ? t('hard-clues-exact', numberToHanzi(violation.at + 1), violation.char)
+      : t('hard-clues-misplaced', violation.char))
   }
   if (meta.value.strict == null)
     meta.value.strict = useStrictMode.value
+  if (meta.value.hardClues == null)
+    meta.value.hardClues = useHardClues.value
   tries.value.push(input.value)
   input.value = ''
   inputValue.value = ''
+}
+function reject(text: string) {
+  toastText.value = text
+  showToast.value = true
+  shake.value = true
+  return false
 }
 function reset() {
   tries.value = []
@@ -152,7 +166,7 @@ watchEffect(() => {
               :class="showToast ? '' : 'op0 translate-y--1'"
             >
               <span tracking-1 pl1>
-                {{ t('invalid-idiom') }}
+                {{ toastText }}
               </span>
             </div>
           </div>

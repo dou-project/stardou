@@ -118,6 +118,36 @@ export function testAnswer(input: ParsedChar[], answer: ParsedChar[]) {
   })
 }
 
+export type HardCluesViolation =
+  | { type: 'exact'; at: number; char: string }
+  | { type: 'misplaced'; char: string }
+
+/**
+ * 困难模式, like Wordle's hard mode on whole characters: a char that was exact
+ * must stay at its position, a misplaced one must be used again (as many times
+ * as it was marked). Pinyin parts are only clues and never constrain the input.
+ */
+export function getHardCluesViolation(input: string, previous: { word: ParsedChar[]; result: MatchResult[] }[]): HardCluesViolation | undefined {
+  const chars = Array.from(input).map(c => toSimplified(c))
+  for (const { word, result } of previous) {
+    for (let i = 0; i < result.length; i++) {
+      if (result[i].char === 'exact' && chars[i] !== toSimplified(word[i].char))
+        return { type: 'exact', at: i, char: word[i].char }
+    }
+  }
+  for (const { word, result } of previous) {
+    const free = chars.filter((_, i) => result[i]?.char !== 'exact')
+    for (let i = 0; i < result.length; i++) {
+      if (result[i].char !== 'misplaced')
+        continue
+      const k = free.indexOf(toSimplified(word[i].char))
+      if (k < 0)
+        return { type: 'misplaced', char: word[i].char }
+      free.splice(k, 1)
+    }
+  }
+}
+
 export function checkPass(result: MatchResult[]) {
   return result.every(r => r.char === 'exact')
 }

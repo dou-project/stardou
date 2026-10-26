@@ -32,5 +32,6 @@ export interface TriesMeta {
   hintLevel?: number
   poemPinyinHint?: boolean
   strict?: boolean
+  hardClues?: boolean
   sent?: boolean
 }

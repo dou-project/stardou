@@ -11,7 +11,7 @@ import { getAnswerOfDay, getEndlessOrder, getIdiomPool, interleaveByGrade } from
 import { seedShuffle } from '../src/answers/utils'
 import { MODES } from '../src/modes'
 import { getPinyin } from '../src/logic/idioms'
-import { parseWord, testAnswer } from '../src/logic/utils'
+import { getHardCluesViolation, parseWord, testAnswer } from '../src/logic/utils'
 import wuyan from '../src/data/poems/wuyan.json'
 import qiyan from '../src/data/poems/qiyan.json'
 
@@ -163,5 +163,42 @@ describe.each(MODES.map(m => [m.id, m] as const))('rules examples %s', (_, m) =>
     expect(p[parts.at]._2).toBe('exact')
     expect(p[parts.final]._2).toBe('misplaced')
     expect(scored({ word: win, answer: win }).every(r => r.char === 'exact')).toBe(true)
+  })
+})
+
+describe('hard clues', () => {
+  const tried = (answer: string, ...words: string[]) => {
+    const ans = parseWord(answer)
+    return words.map((w) => {
+      const word = parseWord(w, answer)
+      return { word, result: testAnswer(word, ans) }
+    })
+  }
+
+  it('keeps exact chars in place', () => {
+    const prev = tried('画龙点睛', '画蛇添足')
+    expect(getHardCluesViolation('一心一意', prev)).toEqual({ type: 'exact', at: 0, char: '画' })
+    expect(getHardCluesViolation('画饼充饥', prev)).toBeUndefined()
+  })
+
+  it('reuses misplaced chars, counting repeats', () => {
+    const prev = tried('一心一意', '心心相印')
+    // one 心 is exact at position 1, the other is not in the answer twice
+    expect(getHardCluesViolation('一心一意', prev)).toBeUndefined()
+    const prev2 = tried('一心一意', '意气风发')
+    expect(getHardCluesViolation('三心二心', prev2)).toEqual({ type: 'misplaced', char: '意' })
+    expect(getHardCluesViolation('全心全意', prev2)).toBeUndefined()
+  })
+
+  it('needs a misplaced char outside the exact positions', () => {
+    // 一 is exact at 0 and misplaced at 3; one 一 at 0 alone is not enough
+    const prev = tried('一心一意', '一石二一')
+    expect(getHardCluesViolation('一心二意', prev)).toEqual({ type: 'misplaced', char: '一' })
+    expect(getHardCluesViolation('一心一意', prev)).toBeUndefined()
+  })
+
+  it('accepts traditional characters', () => {
+    const prev = tried('画龙点睛', '画蛇添足')
+    expect(getHardCluesViolation('畫蛇添足', prev)).toBeUndefined()
   })
 })

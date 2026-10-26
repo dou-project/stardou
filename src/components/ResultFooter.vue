@@ -29,6 +29,9 @@ const hintText = computed(() => {
     <template v-if="meta.strict">
       {{ t('strict-mode') }} ·
     </template>
+    <template v-if="meta.hardClues">
+      {{ t('hard-clues') }} ·
+    </template>
     {{ formatDuration(meta.duration || 0) }}
   </div>
 </template>

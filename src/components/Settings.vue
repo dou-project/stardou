@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { colorblind, inputMode, meta, spMode, useCheckAssist, useNoHint, useNumberTone as useNumberToneRaw, useStrictMode } from '~/storage'
+import { colorblind, inputMode, meta, spMode, useCheckAssist, useHardClues, useNoHint, useNumberTone as useNumberToneRaw, useStrictMode } from '~/storage'
 import { isDark, useNumberTone } from '~/state'
 import { locale, t } from '~/i18n'
 
@@ -101,6 +101,18 @@ defineProps<{
       >
         {{ t('strict-mode') }}
         <div v-if="useStrictMode" square-btn-mark />
+      </button>
+      <button
+        square-btn m2
+        :title="t('hard-clues-desc')"
+        :class="[
+          useHardClues ? 'text-primary' : 'op80',
+          !!meta.tries?.length ? 'op50 pointer-events-none' : '',
+        ]"
+        @click="useHardClues = !useHardClues"
+      >
+        {{ t('hard-clues') }}
+        <div v-if="useHardClues" square-btn-mark />
       </button>
     </div>
   </div>
