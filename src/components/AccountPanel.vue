@@ -14,7 +14,7 @@ const nickname = ref('')
 const avatar = ref<Blob | null>(null)
 const preview = ref('')
 const busy = ref(false)
-const error = ref<AuthError | 'avatar' | ''>('')
+const error = ref<AuthError | 'avatar' | 'exists-wrong-password' | ''>('')
 const confirmSent = ref(false)
 
 /** what still blocks the button, said out loud instead of a silently disabled button */
@@ -84,8 +84,13 @@ async function submit() {
     if (signingUp.value) {
       const r = await signUp(email.value.trim(), password.value, nickname.value.trim(), avatar.value!)
       error.value = r.error || ''
-      if (r.error === 'exists')
+      if (r.error === 'exists') {
+        // registered before, likely on another device: the same password just signs in,
+        // keeping that account's photo and nickname
         signingUp.value = false
+        const again = await signIn(email.value.trim(), password.value)
+        error.value = again.error === 'invalid' ? 'exists-wrong-password' : again.error || ''
+      }
       if (r.confirm) {
         confirmSent.value = true
         signingUp.value = false
@@ -103,7 +108,7 @@ async function submit() {
 
 function switchTo(up: boolean) {
   signingUp.value = up
-  if (error.value !== 'exists')
+  if (!error.value.startsWith('exists'))
     error.value = ''
 }
 
@@ -153,6 +158,9 @@ onBeforeUnmount(() => preview.value && URL.revokeObjectURL(preview.value))
       </button>
     </div>
 
+    <p v-if="signingUp" text-xs op55 mt--1 text-center>
+      {{ t('account-other-device') }}
+    </p>
     <label v-if="signingUp" mx-auto mb1 cursor-pointer flex="~ col" items-center gap-1>
       <img v-if="preview" :src="preview" alt="" w-20 h-20 rounded-full object-cover>
       <div v-else w-20 h-20 rounded-full border="2 dashed primary" flex items-center justify-center text-primary>
