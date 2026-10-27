@@ -1,5 +1,5 @@
 import { initialized, markEnd, markStart, meta, pauseTimer, useStrictMode } from './storage'
-import { answer, dayNo, daySince, isDev, isFinished, isPassed, leaderboardTab, showCelebration, showCheatSheet, showHelp, showLeaderboard } from './state'
+import { answer, dayNo, daySince, isDev, isFinished, isPassed, showCelebration, showCheatSheet, showHelp } from './state'
 import { locale, t } from './i18n'
 import { START_DATE } from './logic/constants'
 import { tryFixAnswer } from './logic/answer-fix'
@@ -47,23 +47,17 @@ watch(() => isFinished.value || !!meta.value.failed, (v) => {
     syncResults()
 }, { flush: 'post' })
 
-// finishing a puzzle (not reopening a finished one, nor stepping onto one in endless mode)
-// shows a signed-in player where they landed, after the result and confetti: the award
-// ceremony for the daily puzzle, 总榜 for endless ones. Guests just get the result.
-if (cloudEnabled) {
+// finishing the daily puzzle (not reopening a finished one) shows a signed-in player the award
+// ceremony, after the result and confetti. Endless puzzles open nothing: one comes after another,
+// and the board is a button away on the result screen. Guests just get the result.
+if (cloudEnabled && !isEndless) {
   watch([isFinished, dayNo], ([v, day], [old, oldDay]) => {
     if (v && !old && day === oldDay) {
       setTimeout(() => {
         // a second tab of the same game learns of the finish through localStorage; stay quiet there
         if (document.visibilityState !== 'visible' || !account.value)
           return
-        if (isEndless) {
-          leaderboardTab.value = 'overall'
-          showLeaderboard.value = true
-        }
-        else {
-          showCelebration.value = true
-        }
+        showCelebration.value = true
       }, 2000)
     }
   })

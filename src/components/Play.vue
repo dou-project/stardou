@@ -199,7 +199,7 @@ watchEffect(() => {
       <Transition name="fade-in">
         <div v-if="isFinishedDelay && isFinished">
           <ResultFooter />
-          <button v-if="cloudEnabled" ghost-btn text-sm mt3 inline-flex items-center gap-1 @click="leaderboardTab = 'today'; showLeaderboard = true">
+          <button v-if="cloudEnabled" ghost-btn text-sm mt3 inline-flex items-center gap-1 @click="leaderboardTab = isEndless ? 'overall' : 'today'; showLeaderboard = true">
             <div i-carbon-trophy /> {{ t(account ? 'board-view' : 'board-join') }}
           </button>
           <PoemCard />
