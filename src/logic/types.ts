@@ -30,7 +30,6 @@ export interface TriesMeta {
   tries?: string[]
   hint?: boolean
   hintLevel?: number
-  poemPinyinHint?: boolean
   strict?: boolean
   hardClues?: boolean
   sent?: boolean

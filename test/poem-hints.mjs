@@ -1,7 +1,6 @@
 /* eslint-disable no-console */
 // Run against a production build: pnpm build && pnpm test:poem-hints
-// Build without VITE_SUPABASE_* (e.g. move .env.local aside): with accounts on, the game pages
-// open on the sign-in page and ignore ?dev=hey.
+// Build without VITE_SUPABASE_* (e.g. move .env.local aside): with accounts on, ?dev=hey is ignored.
 // Uses an installed Chrome/Chromium; override its path with CHROME.
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -66,51 +65,39 @@ try {
     const { page, submit, meta } = game
     assert((await page.locator('main').innerText()).includes(`朝代 ${poem.d}`))
     assert(!(await page.locator('main').innerText()).includes(poem.a))
-    for (let count = 1; count <= 4; count++) {
+
+    // wrong guesses never reveal anything by themselves
+    for (let count = 1; count <= 6; count++)
       await submit(wrong, count)
-      assert.equal(await page.getByRole('status').count(), 0)
-    }
-    await page.locator('input').fill('天')
-    await page.locator('input').press('Enter')
-    assert.equal((await meta()).tries.length, 4)
     assert.equal(await page.getByRole('status').count(), 0)
-    await submit(wrong, 5)
-    await page.getByRole('status').waitFor()
-    const text = await page.getByRole('status').innerText()
-    for (const part of ['声母：ch', '韵母：ang', '声调：二声（2）'])
-      assert(text.includes(part), text)
-    assert(!text.includes('长'))
-    assert.equal((await meta()).hint, true)
-    assert.equal((await meta()).poemPinyinHint, true)
-    assert.equal((await meta()).hintLevel, undefined)
+    assert(!(await page.locator('main').innerText()).includes('声母：'))
+    assert.equal((await meta()).hint, undefined)
     assert(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth))
 
-    await page.reload()
-    await page.getByRole('status').waitFor()
-    assert.equal(await page.getByRole('status').innerText(), text)
-    await submit(wrong, 6)
-    assert.equal(await page.getByRole('status').count(), 1)
+    // 提示 reveals one character at a time, and the poet stays hidden
     await page.getByRole('button', { name: '提示', exact: true }).click()
     await page.getByText('已揭示答案中的 1 个字').waitFor()
     assert(!(await page.locator('main').innerText()).includes(poem.a))
-    // Reload closes the manual hint dialog and keeps the saved game.
+    assert.equal((await meta()).hintLevel, 1)
+
+    // a reload keeps the game; winning shows the poem and its poet
     await page.reload()
-    await page.getByRole('status').waitFor()
+    await page.locator('input').waitFor()
+    assert.equal((await meta()).tries.length, 6)
     await submit(answer, 7)
     await page.getByText('全诗', { exact: false }).waitFor()
-    assert.equal(await page.getByRole('status').count(), 0)
     await page.getByText(`${poem.d} · ${poem.a}`, { exact: true }).waitFor()
+    await page.getByText(/提示 1 字 ·\s+\d/).waitFor()
     await page.getByRole('button', { name: '重置', exact: true }).click()
     await page.locator('input').waitFor()
-    assert.equal(await page.getByRole('status').count(), 0)
-    assert.equal((await meta()).poemPinyinHint, undefined)
     await game.context.close()
 
     const win = await openGame(mode, day, { tries: Array(4).fill(wrong) })
     await win.submit(answer, 5)
     await win.page.getByText('全诗', { exact: false }).waitFor()
     await win.page.getByText(`${poem.d} · ${poem.a}`, { exact: true }).waitFor()
-    assert.equal(await win.page.getByRole('status').count(), 0)
+    // the result line, not the 记分板 label of the same name
+    await win.page.getByText(/无提示 ·\s+\d/).waitFor()
     assert.equal((await win.meta()).hint, undefined)
     await win.context.close()
 
@@ -124,50 +111,17 @@ try {
     await reveal.page.getByText(`${poem.d} · ${poem.a}`, { exact: true }).waitFor()
     await reveal.context.close()
 
-    const disabled = await openGame(mode, day, { tries: Array(5).fill(wrong) }, { 'handle-hard-mode': true })
-    assert.equal(await disabled.page.getByRole('status').count(), 0)
-    assert.equal((await disabled.meta()).hint, undefined)
-    await disabled.context.close()
-
     const strict = await openGame(mode, day, { tries: Array(4).fill(wrong) }, { 'handle-strict': true })
     await strict.page.waitForLoadState('networkidle')
     await strict.page.locator('input').fill(wrong)
     await strict.page.locator('input').press('Enter')
     assert.equal((await strict.meta()).tries.length, 4)
-    assert.equal(await strict.page.getByRole('status').count(), 0)
     await strict.context.close()
 
-    for (const inputMode of ['zy', 'sp']) {
-      const alternate = await openGame(mode, day, { tries: Array(5).fill(wrong) }, { 'handle-mode': inputMode, 'handle-locale': 'hant' })
-      await alternate.page.getByRole('status').waitFor()
-      const hint = await alternate.page.getByRole('status').innerText()
-      assert(hint.includes('聲母：ch') && hint.includes('韻母：ang') && hint.includes('聲調：二聲（2）'))
-      await alternate.submit(answer, 6)
-      await alternate.page.getByText('全詩', { exact: false }).waitFor()
-      assert((await alternate.page.locator('main').innerText()).includes('首字讀音提示'))
-      await alternate.context.close()
-    }
-    console.log(`${mode}: dynasty, five guesses, persistence, reset, win, strict mode, disabled hints, alternate input modes and results passed`)
+    console.log(`${mode}: dynasty, no automatic hints, one-character hints, persistence, win, reveal and strict mode passed`)
   }
-
-  for (const [mode, answer, initial, final] of [
-    ['wuyan', '鱼戏莲叶间', 'y', 'ü'],
-    ['qiyan', '峨眉山月半轮秋', '无（零声母）', 'e'],
-  ]) {
-    const data = JSON.parse(fs.readFileSync(`src/data/poems/${mode}.json`, 'utf8'))
-    const day = data.answers.findIndex(a => a[0] === answer) + 1
-    const game = await openGame(mode, day, { tries: Array(5).fill('天'.repeat(answer.length)) })
-    await game.page.getByRole('status').waitFor()
-    const text = await game.page.getByRole('status').innerText()
-    assert(text.includes(`声母：${initial}`) && text.includes(`韵母：${final}`))
-    await game.context.close()
-  }
-  const idiom = await openGame('chengyu', 1, { tries: Array(5).fill('天地玄黄') })
-  assert.equal(await idiom.page.getByRole('status').count(), 0)
-  assert.equal((await idiom.meta()).hint, undefined)
-  await idiom.context.close()
   assert.deepEqual(errors, [])
-  console.log('Zero initials, ü and idiom mode passed; no browser errors')
+  console.log('No browser errors')
 }
 finally {
   await browser?.close()

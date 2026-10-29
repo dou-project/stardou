@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { filterNonChineseChars } from '@hankit/tools'
-import { answer, dayNo, hintRevealed, isDev, isFailed, isFinished, leaderboardTab, parseWord, parsedTries, showCheatSheet, showFailed, showHelp, showHint, showLeaderboard } from '~/state'
+import { answer, dayNo, hintRevealed, isDev, isFailed, isFinished, leaderboardTab, parsedTries, showCheatSheet, showFailed, showHelp, showHint, showLeaderboard } from '~/state'
 import { markStart, meta, tries, useHardClues, useNoHint, useStrictMode } from '~/storage'
 import { t } from '~/i18n'
 import { TRIES_LIMIT, WORD_LENGTH, checkValidIdiom, getHardCluesViolation, numberToHanzi } from '~/logic'
@@ -15,20 +15,6 @@ const toastText = ref('')
 const shake = autoResetRef(false, 500)
 
 const isFinishedDelay = debouncedRef(isFinished, 800)
-
-// Keep this in full pinyin even when the board uses zhuyin or shuangpin.
-const firstCharHint = computed(() => {
-  if (!mode.isPoem || useNoHint.value || isFinished.value || tries.value.length < 5)
-    return
-  return parseWord(answer.value.word, answer.value.word, 'py')[0]
-})
-
-watchEffect(() => {
-  if (firstCharHint.value) {
-    meta.value.hint = true
-    meta.value.poemPinyinHint = true
-  }
-})
 
 function enter() {
   if (input.value.length !== WORD_LENGTH)
@@ -130,17 +116,6 @@ watchEffect(() => {
         :active="true"
         @click="focus()"
       />
-
-      <div v-if="firstCharHint" role="status" my3 px3 py2 rounded bg-gray-400:8 text-sm>
-        <div mb1 font-serif>
-          {{ t('first-char-hint') }}
-        </div>
-        <div flex="~ wrap center gap-x-4 gap-y-1">
-          <span>{{ t('initials') }}：<b>{{ firstCharHint._1 || t('no-initial') }}</b></span>
-          <span>{{ t('finals') }}：<b>{{ firstCharHint._2?.replace(/v/g, 'ü') }}</b></span>
-          <span>{{ t('tone') }}：<b>{{ t(`tone-${firstCharHint.tone}` as any) }}</b></span>
-        </div>
-      </div>
 
       <div mt-1 />
 
